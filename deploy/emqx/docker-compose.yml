@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  emqx:
+    image: emqx/emqx:5.8.6
+    container_name: emqx
+    restart: unless-stopped
+    ports:
+      - "1883:1883"   # MQTT TCP
+      - "8083:8083"   # MQTT over WebSocket
+      - "8883:8883"   # MQTT SSL
+      - "8084:8084"   # MQTT over WSS
+      - "18083:18083" # Dashboard
+    environment:
+      EMQX_NAME: emqx
+      EMQX_HOST: node1.emqx.local
+      EMQX_DASHBOARD__DEFAULT_USERNAME: admin
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: public
+      EMQX_ALLOW_ANONYMOUS: "false"
+    volumes:
+      - ./data:/opt/emqx/data
+      - ./log:/opt/emqx/log

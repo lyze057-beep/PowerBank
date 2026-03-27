@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package user.v1;
+
+option go_package = "github.com/go-kratos/kratos-layout/api/user/v1;v1";
+
+import "google/api/annotations.proto";
+
+service UserService {
+  rpc GetProfile (GetProfileRequest) returns (GetProfileReply) {
+    option (google.api.http) = {
+      get: "/v1/user/profile"
+    };
+  }
+
+  rpc UpdateProfile (UpdateProfileRequest) returns (UpdateProfileReply) {
+    option (google.api.http) = {
+      put: "/v1/user/profile"
+      body: "*"
+    };
+  }
+
+  rpc CheckLoginState (CheckLoginStateRequest) returns (CheckLoginStateReply) {
+    option (google.api.http) = {
+      get: "/v1/user/session"
+    };
+  }
+}
+
+message UserProfile {
+  uint64 id = 1;
+  string uid = 2;
+  string mobile = 3;
+  string nickname = 4;
+  string avatar = 5;
+  int32 status = 6;
+}
+
+message GetProfileRequest {}
+
+message GetProfileReply {
+  UserProfile profile = 1;
+}
+
+message UpdateProfileRequest {
+  string nickname = 1;
+  string avatar = 2;
+}
+
+message UpdateProfileReply {
+  UserProfile profile = 1;
+}
+
+message CheckLoginStateRequest {}
+
+message CheckLoginStateReply {
+  bool logged_in = 1;
+  int64 expire_at = 2;
+  string uid = 3;
+}

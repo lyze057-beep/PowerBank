@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package payment.v1;
+
+option go_package = "github.com/go-kratos/kratos-layout/api/payment/v1;v1";
+
+import "google/api/annotations.proto";
+
+service PaymentService {
+  rpc CreateWxPayOrder (CreateWxPayOrderRequest) returns (CreateWxPayOrderReply) {
+    option (google.api.http) = {
+      post: "/v1/payments/wx/orders"
+      body: "*"
+    };
+  }
+
+  rpc QueryPayOrder (QueryPayOrderRequest) returns (QueryPayOrderReply) {
+    option (google.api.http) = {
+      get: "/v1/payments/orders/{out_trade_no}"
+    };
+  }
+
+  rpc WxPayNotify (WxPayNotifyRequest) returns (WxPayNotifyReply) {
+    option (google.api.http) = {
+      post: "/v1/payments/wx/notify"
+      body: "*"
+    };
+  }
+
+  rpc AlipayNotify (AlipayNotifyRequest) returns (AlipayNotifyReply) {
+    option (google.api.http) = {
+      post: "/v1/payments/alipay/notify"
+      body: "*"
+    };
+  }
+
+  rpc AlipayHeartbeat (AlipayHeartbeatRequest) returns (AlipayHeartbeatReply) {
+    option (google.api.http) = {
+      get: "/v1/payments/alipay/heartbeat"
+    };
+  }
+}
+
+enum PayMode {
+  PAY_MODE_UNSPECIFIED = 0;
+  PAY_MODE_NATIVE = 1;
+  PAY_MODE_JSAPI = 2;
+}
+
+enum BizType {
+  BIZ_TYPE_UNSPECIFIED = 0;
+  BIZ_TYPE_RECHARGE = 1;
+  BIZ_TYPE_RENT_ORDER = 2;
+}
+
+enum PayStatus {
+  PAY_STATUS_UNSPECIFIED = 0;
+  PAY_STATUS_INIT = 1;
+  PAY_STATUS_PAYING = 2;
+  PAY_STATUS_SUCCESS = 3;
+  PAY_STATUS_FAILED = 4;
+}
+
+message CreateWxPayOrderRequest {
+  PayMode pay_mode = 1;
+  BizType biz_type = 2;
+  string biz_order_no = 3;
+  int64 amount = 4;
+  string client_req_id = 5;
+  string openid = 6;
+}
+
+message CreateWxPayOrderReply {
+  string out_trade_no = 1;
+  PayStatus status = 2;
+  string code_url = 3;
+  map<string, string> jsapi_params = 4;
+}
+
+message QueryPayOrderRequest {
+  string out_trade_no = 1;
+}
+
+message QueryPayOrderReply {
+  string out_trade_no = 1;
+  BizType biz_type = 2;
+  string biz_order_no = 3;
+  int64 amount = 4;
+  PayMode pay_mode = 5;
+  PayStatus status = 6;
+  string transaction_id = 7;
+}
+
+message WxPayNotifyRequest {
+  string body = 1;
+  string timestamp = 2;
+  string nonce = 3;
+  string signature = 4;
+  string serial = 5;
+}
+
+message WxPayNotifyReply {
+  string code = 1;
+  string message = 2;
+}
+
+message AlipayNotifyRequest {
+  string body = 1;
+  string signature = 2;
+  string notify_id = 3;
+  string timestamp = 4;
+}
+
+message AlipayNotifyReply {
+  string code = 1;
+  string message = 2;
+}
+
+message AlipayHeartbeatRequest {}
+
+message AlipayHeartbeatReply {
+  bool ok = 1;
+  string message = 2;
+  int64 timestamp = 3;
+}

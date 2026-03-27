@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package notify.v1;
+
+option go_package = "github.com/go-kratos/kratos-layout/api/notify/v1;v1";
+
+import "google/api/annotations.proto";
+
+service NotifyService {
+  rpc PushMessage (PushMessageRequest) returns (PushMessageReply) {
+    option (google.api.http) = {
+      post: "/v1/notify/messages"
+      body: "*"
+    };
+  }
+
+  rpc ListMessages (ListMessagesRequest) returns (ListMessagesReply) {
+    option (google.api.http) = {
+      get: "/v1/notify/messages"
+    };
+  }
+}
+
+enum MessageStatus {
+  MESSAGE_STATUS_UNSPECIFIED = 0;
+  MESSAGE_STATUS_INIT = 1;
+  MESSAGE_STATUS_SENT = 2;
+  MESSAGE_STATUS_FAILED = 3;
+}
+
+message PushMessageRequest {
+  string title = 1;
+  string content = 2;
+  string biz_type = 3;
+  string biz_id = 4;
+  string client_req_id = 5;
+  string topic = 6;
+}
+
+message PushMessageReply {
+  uint64 id = 1;
+  MessageStatus status = 2;
+  string topic = 3;
+}
+
+message ListMessagesRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message MessageRecord {
+  uint64 id = 1;
+  string title = 2;
+  string content = 3;
+  string biz_type = 4;
+  string biz_id = 5;
+  string topic = 6;
+  MessageStatus status = 7;
+  string failed_reason = 8;
+  int64 created_at = 9;
+}
+
+message ListMessagesReply {
+  repeated MessageRecord items = 1;
+}

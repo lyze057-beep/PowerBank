@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package support.v1;
+
+option go_package = "github.com/go-kratos/kratos-layout/api/support/v1;v1";
+
+enum ErrorReason {
+  ERROR_REASON_UNSPECIFIED = 0;
+  INVALID_ARGUMENT = 1;
+  UNAUTHORIZED = 2;
+  SUPPORT_SESSION_NOT_FOUND = 3;
+  SUPPORT_DUPLICATE_REQUEST = 4;
+  SUPPORT_MODEL_CALL_FAILED = 5;
+}

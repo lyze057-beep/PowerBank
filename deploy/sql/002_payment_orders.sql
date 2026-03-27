@@ -1,0 +1,40 @@
+CREATE TABLE IF NOT EXISTS `payment_orders` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `uid` VARCHAR(64) NOT NULL COMMENT '业务用户ID',
+  `out_trade_no` VARCHAR(64) NOT NULL COMMENT '支付单号',
+  `client_req_id` VARCHAR(64) NOT NULL COMMENT '客户端幂等ID',
+  `channel` VARCHAR(16) NOT NULL COMMENT 'WECHAT/ALIPAY',
+  `pay_mode` TINYINT NOT NULL COMMENT '1=NATIVE,2=JSAPI',
+  `biz_type` TINYINT NOT NULL COMMENT '1=RECHARGE,2=RENT_ORDER',
+  `biz_order_no` VARCHAR(64) NOT NULL COMMENT '业务订单号',
+  `amount` BIGINT NOT NULL COMMENT '金额(分)',
+  `status` TINYINT NOT NULL DEFAULT 1 COMMENT '1=INIT,2=PAYING,3=SUCCESS,4=FAILED',
+  `prepay_id` VARCHAR(128) NOT NULL DEFAULT '',
+  `code_url` VARCHAR(255) NOT NULL DEFAULT '',
+  `jsapi_params` JSON NULL,
+  `transaction_id` VARCHAR(128) NOT NULL DEFAULT '',
+  `failed_reason` VARCHAR(255) NOT NULL DEFAULT '',
+  `paid_at` DATETIME(3) NULL DEFAULT NULL,
+  `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updated_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  `deleted_at` DATETIME(3) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_payment_orders_client_req` (`uid`, `client_req_id`),
+  UNIQUE KEY `uk_payment_orders_out_trade_no` (`out_trade_no`),
+  KEY `idx_payment_orders_uid_status` (`uid`, `status`),
+  KEY `idx_payment_orders_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `payment_events` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `channel` VARCHAR(16) NOT NULL,
+  `event_id` VARCHAR(128) NOT NULL COMMENT '支付渠道事件ID',
+  `out_trade_no` VARCHAR(64) NOT NULL,
+  `event_type` VARCHAR(64) NOT NULL DEFAULT '',
+  `trade_state` VARCHAR(32) NOT NULL DEFAULT '',
+  `payload` JSON NULL,
+  `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_payment_events_channel_event` (`channel`, `event_id`),
+  KEY `idx_payment_events_out_trade_no` (`out_trade_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package notify.v1;
+
+option go_package = "github.com/go-kratos/kratos-layout/api/notify/v1;v1";
+
+enum ErrorReason {
+  ERROR_REASON_UNSPECIFIED = 0;
+  INVALID_ARGUMENT = 1;
+  UNAUTHORIZED = 2;
+  NOTIFY_DUPLICATE_REQUEST = 3;
+  NOTIFY_PUBLISH_FAILED = 4;
+}

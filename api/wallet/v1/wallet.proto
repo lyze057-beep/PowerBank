@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package wallet.v1;
+
+option go_package = "github.com/go-kratos/kratos-layout/api/wallet/v1;v1";
+
+import "google/api/annotations.proto";
+
+service WalletService {
+  rpc GetBalance (GetBalanceRequest) returns (GetBalanceReply) {
+    option (google.api.http) = {
+      get: "/v1/wallet/balance"
+    };
+  }
+
+  rpc CreateRechargeOrder (CreateRechargeOrderRequest) returns (CreateRechargeOrderReply) {
+    option (google.api.http) = {
+      post: "/v1/wallet/recharges"
+      body: "*"
+    };
+  }
+
+  rpc CreateAlipayRechargeOrder (CreateAlipayRechargeOrderRequest) returns (CreateRechargeOrderReply) {
+    option (google.api.http) = {
+      post: "/v1/wallet/recharges/alipay"
+      body: "*"
+    };
+  }
+}
+
+enum RechargeChannel {
+  RECHARGE_CHANNEL_UNSPECIFIED = 0;
+  RECHARGE_CHANNEL_WECHAT = 1;
+  RECHARGE_CHANNEL_ALIPAY = 2;
+}
+
+enum RechargePayMode {
+  RECHARGE_PAY_MODE_UNSPECIFIED = 0;
+  RECHARGE_PAY_MODE_NATIVE = 1;
+  RECHARGE_PAY_MODE_JSAPI = 2;
+}
+
+enum RechargeOrderStatus {
+  RECHARGE_ORDER_STATUS_UNSPECIFIED = 0;
+  RECHARGE_ORDER_STATUS_INIT = 1;
+  RECHARGE_ORDER_STATUS_PAYING = 2;
+  RECHARGE_ORDER_STATUS_SUCCESS = 3;
+  RECHARGE_ORDER_STATUS_FAILED = 4;
+}
+
+message GetBalanceRequest {}
+
+message GetBalanceReply {
+  string uid = 1;
+  int64 balance = 2;
+}
+
+message CreateRechargeOrderRequest {
+  RechargeChannel channel = 1;
+  RechargePayMode pay_mode = 2;
+  int64 amount = 3;
+  string client_req_id = 4;
+  string openid = 5;
+}
+
+message CreateRechargeOrderReply {
+  string out_trade_no = 1;
+  RechargeChannel channel = 2;
+  RechargeOrderStatus status = 3;
+  string code_url = 4;
+  string pay_url = 5;
+  map<string, string> jsapi_params = 6;
+}
+
+message CreateAlipayRechargeOrderRequest {
+  int64 amount = 1;
+  string client_req_id = 2;
+}

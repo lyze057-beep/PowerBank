@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package payment.v1;
+
+option go_package = "github.com/go-kratos/kratos-layout/api/payment/v1;v1";
+
+enum ErrorReason {
+  ERROR_REASON_UNSPECIFIED = 0;
+  INVALID_ARGUMENT = 1;
+  UNAUTHORIZED = 2;
+  PAYMENT_ORDER_NOT_FOUND = 3;
+  PAYMENT_DUPLICATE_REQUEST = 4;
+  PAYMENT_SIGN_VERIFY_FAILED = 5;
+  PAYMENT_STATUS_INVALID = 6;
+  PAYMENT_HEARTBEAT_FAILED = 7;
+}

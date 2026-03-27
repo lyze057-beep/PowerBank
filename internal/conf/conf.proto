@@ -1,0 +1,99 @@
+syntax = "proto3";
+package kratos.api;
+
+option go_package = "github.com/go-kratos/kratos-layout/internal/conf;conf";
+
+import "google/protobuf/duration.proto";
+
+message Bootstrap {
+  Server server = 1;
+  Data data = 2;
+  JWT jwt = 3;
+  Payment payment = 4;
+  AI ai = 5;
+}
+
+message Server {
+  message HTTP {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  message GRPC {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  HTTP http = 1;
+  GRPC grpc = 2;
+}
+
+message Data {
+  message Database {
+    string driver = 1;
+    string source = 2;
+  }
+  message Redis {
+    string network = 1;
+    string addr = 2;
+    string password = 3;
+    int32 db = 4;
+    google.protobuf.Duration read_timeout = 5;
+    google.protobuf.Duration write_timeout = 6;
+  }
+  message EMQX {
+    bool enabled = 1;
+    string broker = 2;
+    string ws_broker = 3;
+    string username = 4;
+    string password = 5;
+    string client_id = 6;
+    string topic_prefix = 7;
+    string default_sub_topic = 8;
+    uint32 qos = 9;
+    google.protobuf.Duration connect_timeout = 10;
+  }
+  Database database = 1;
+  Redis redis = 2;
+  EMQX emqx = 3;
+}
+
+message JWT {
+  string key = 1;
+  string issuer = 2;
+  google.protobuf.Duration expire = 3;
+}
+
+message Payment {
+  message Wechat {
+    bool mock_enabled = 1;
+    string app_id = 2;
+    string mch_id = 3;
+    string api_v3_key = 4;
+    string notify_url = 5;
+    string private_key_path = 6;
+    string platform_cert_path = 7;
+  }
+  message Alipay {
+    bool mock_enabled = 1;
+    string app_id = 2;
+    string notify_url = 3;
+    string private_key_path = 4;
+    string alipay_public_key_path = 5;
+  }
+  Wechat wechat = 1;
+  Alipay alipay = 2;
+}
+
+message AI {
+  message OpenAICompatible {
+    bool enabled = 1;
+    string base_url = 2;
+    string api_key = 3;
+    string model = 4;
+    google.protobuf.Duration timeout = 5;
+    int32 max_tokens = 6;
+    float temperature = 7;
+  }
+  OpenAICompatible openai_compatible = 1;
+}

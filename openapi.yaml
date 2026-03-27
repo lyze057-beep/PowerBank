@@ -1,0 +1,592 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: ""
+    version: 0.0.1
+paths:
+    /helloworld/{name}:
+        get:
+            tags:
+                - Greeter
+            description: Sends a greeting
+            operationId: Greeter_SayHello
+            parameters:
+                - name: name
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.HelloReply'
+    /v1/notify/messages:
+        get:
+            tags:
+                - NotifyService
+            operationId: NotifyService_ListMessages
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/notify.v1.ListMessagesReply'
+        post:
+            tags:
+                - NotifyService
+            operationId: NotifyService_PushMessage
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/notify.v1.PushMessageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/notify.v1.PushMessageReply'
+    /v1/payments/alipay/heartbeat:
+        get:
+            tags:
+                - PaymentService
+            operationId: PaymentService_AlipayHeartbeat
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/payment.v1.AlipayHeartbeatReply'
+    /v1/payments/alipay/notify:
+        post:
+            tags:
+                - PaymentService
+            operationId: PaymentService_AlipayNotify
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/payment.v1.AlipayNotifyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/payment.v1.AlipayNotifyReply'
+    /v1/payments/orders/{outTradeNo}:
+        get:
+            tags:
+                - PaymentService
+            operationId: PaymentService_QueryPayOrder
+            parameters:
+                - name: outTradeNo
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/payment.v1.QueryPayOrderReply'
+    /v1/payments/wx/notify:
+        post:
+            tags:
+                - PaymentService
+            operationId: PaymentService_WxPayNotify
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/payment.v1.WxPayNotifyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/payment.v1.WxPayNotifyReply'
+    /v1/payments/wx/orders:
+        post:
+            tags:
+                - PaymentService
+            operationId: PaymentService_CreateWxPayOrder
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/payment.v1.CreateWxPayOrderRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/payment.v1.CreateWxPayOrderReply'
+    /v1/support/chat:send:
+        post:
+            tags:
+                - SupportService
+            operationId: SupportService_SendMessage
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/support.v1.SendMessageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/support.v1.SendMessageReply'
+    /v1/support/sessions/{sessionId}/turns:
+        get:
+            tags:
+                - SupportService
+            operationId: SupportService_ListSessionTurns
+            parameters:
+                - name: sessionId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/support.v1.ListSessionTurnsReply'
+    /v1/user/profile:
+        get:
+            tags:
+                - UserService
+            operationId: UserService_GetProfile
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user.v1.GetProfileReply'
+        put:
+            tags:
+                - UserService
+            operationId: UserService_UpdateProfile
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/user.v1.UpdateProfileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user.v1.UpdateProfileReply'
+    /v1/user/session:
+        get:
+            tags:
+                - UserService
+            operationId: UserService_CheckLoginState
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user.v1.CheckLoginStateReply'
+    /v1/wallet/balance:
+        get:
+            tags:
+                - WalletService
+            operationId: WalletService_GetBalance
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/wallet.v1.GetBalanceReply'
+    /v1/wallet/recharges:
+        post:
+            tags:
+                - WalletService
+            operationId: WalletService_CreateRechargeOrder
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/wallet.v1.CreateRechargeOrderRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/wallet.v1.CreateRechargeOrderReply'
+    /v1/wallet/recharges/alipay:
+        post:
+            tags:
+                - WalletService
+            operationId: WalletService_CreateAlipayRechargeOrder
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/wallet.v1.CreateAlipayRechargeOrderRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/wallet.v1.CreateRechargeOrderReply'
+components:
+    schemas:
+        helloworld.v1.HelloReply:
+            type: object
+            properties:
+                message:
+                    type: string
+            description: The response message containing the greetings
+        notify.v1.ListMessagesReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/notify.v1.MessageRecord'
+        notify.v1.MessageRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                content:
+                    type: string
+                bizType:
+                    type: string
+                bizId:
+                    type: string
+                topic:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+                failedReason:
+                    type: string
+                createdAt:
+                    type: string
+        notify.v1.PushMessageReply:
+            type: object
+            properties:
+                id:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+                topic:
+                    type: string
+        notify.v1.PushMessageRequest:
+            type: object
+            properties:
+                title:
+                    type: string
+                content:
+                    type: string
+                bizType:
+                    type: string
+                bizId:
+                    type: string
+                clientReqId:
+                    type: string
+                topic:
+                    type: string
+        payment.v1.AlipayHeartbeatReply:
+            type: object
+            properties:
+                ok:
+                    type: boolean
+                message:
+                    type: string
+                timestamp:
+                    type: string
+        payment.v1.AlipayNotifyReply:
+            type: object
+            properties:
+                code:
+                    type: string
+                message:
+                    type: string
+        payment.v1.AlipayNotifyRequest:
+            type: object
+            properties:
+                body:
+                    type: string
+                signature:
+                    type: string
+                notifyId:
+                    type: string
+                timestamp:
+                    type: string
+        payment.v1.CreateWxPayOrderReply:
+            type: object
+            properties:
+                outTradeNo:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+                codeUrl:
+                    type: string
+                jsapiParams:
+                    type: object
+                    additionalProperties:
+                        type: string
+        payment.v1.CreateWxPayOrderRequest:
+            type: object
+            properties:
+                payMode:
+                    type: integer
+                    format: enum
+                bizType:
+                    type: integer
+                    format: enum
+                bizOrderNo:
+                    type: string
+                amount:
+                    type: string
+                clientReqId:
+                    type: string
+                openid:
+                    type: string
+        payment.v1.QueryPayOrderReply:
+            type: object
+            properties:
+                outTradeNo:
+                    type: string
+                bizType:
+                    type: integer
+                    format: enum
+                bizOrderNo:
+                    type: string
+                amount:
+                    type: string
+                payMode:
+                    type: integer
+                    format: enum
+                status:
+                    type: integer
+                    format: enum
+                transactionId:
+                    type: string
+        payment.v1.WxPayNotifyReply:
+            type: object
+            properties:
+                code:
+                    type: string
+                message:
+                    type: string
+        payment.v1.WxPayNotifyRequest:
+            type: object
+            properties:
+                body:
+                    type: string
+                timestamp:
+                    type: string
+                nonce:
+                    type: string
+                signature:
+                    type: string
+                serial:
+                    type: string
+        support.v1.ListSessionTurnsReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/support.v1.SessionTurn'
+        support.v1.SendMessageReply:
+            type: object
+            properties:
+                sessionId:
+                    type: string
+                turnId:
+                    type: string
+                intent:
+                    type: integer
+                    format: enum
+                reply:
+                    type: string
+                usedFallback:
+                    type: boolean
+        support.v1.SendMessageRequest:
+            type: object
+            properties:
+                sessionId:
+                    type: string
+                content:
+                    type: string
+                clientReqId:
+                    type: string
+        support.v1.SessionTurn:
+            type: object
+            properties:
+                id:
+                    type: string
+                sessionId:
+                    type: string
+                userMessage:
+                    type: string
+                assistantMessage:
+                    type: string
+                intent:
+                    type: integer
+                    format: enum
+                usedFallback:
+                    type: boolean
+                createdAt:
+                    type: string
+        user.v1.CheckLoginStateReply:
+            type: object
+            properties:
+                loggedIn:
+                    type: boolean
+                expireAt:
+                    type: string
+                uid:
+                    type: string
+        user.v1.GetProfileReply:
+            type: object
+            properties:
+                profile:
+                    $ref: '#/components/schemas/user.v1.UserProfile'
+        user.v1.UpdateProfileReply:
+            type: object
+            properties:
+                profile:
+                    $ref: '#/components/schemas/user.v1.UserProfile'
+        user.v1.UpdateProfileRequest:
+            type: object
+            properties:
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+        user.v1.UserProfile:
+            type: object
+            properties:
+                id:
+                    type: string
+                uid:
+                    type: string
+                mobile:
+                    type: string
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+        wallet.v1.CreateAlipayRechargeOrderRequest:
+            type: object
+            properties:
+                amount:
+                    type: string
+                clientReqId:
+                    type: string
+        wallet.v1.CreateRechargeOrderReply:
+            type: object
+            properties:
+                outTradeNo:
+                    type: string
+                channel:
+                    type: integer
+                    format: enum
+                status:
+                    type: integer
+                    format: enum
+                codeUrl:
+                    type: string
+                payUrl:
+                    type: string
+                jsapiParams:
+                    type: object
+                    additionalProperties:
+                        type: string
+        wallet.v1.CreateRechargeOrderRequest:
+            type: object
+            properties:
+                channel:
+                    type: integer
+                    format: enum
+                payMode:
+                    type: integer
+                    format: enum
+                amount:
+                    type: string
+                clientReqId:
+                    type: string
+                openid:
+                    type: string
+        wallet.v1.GetBalanceReply:
+            type: object
+            properties:
+                uid:
+                    type: string
+                balance:
+                    type: string
+tags:
+    - name: Greeter
+      description: The greeting service definition.
+    - name: NotifyService
+    - name: PaymentService
+    - name: SupportService
+    - name: UserService
+    - name: WalletService

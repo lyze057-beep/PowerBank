@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package support.v1;
+
+option go_package = "github.com/go-kratos/kratos-layout/api/support/v1;v1";
+
+import "google/api/annotations.proto";
+
+service SupportService {
+  rpc SendMessage (SendMessageRequest) returns (SendMessageReply) {
+    option (google.api.http) = {
+      post: "/v1/support/chat:send"
+      body: "*"
+    };
+  }
+
+  rpc ListSessionTurns (ListSessionTurnsRequest) returns (ListSessionTurnsReply) {
+    option (google.api.http) = {
+      get: "/v1/support/sessions/{session_id}/turns"
+    };
+  }
+}
+
+enum IntentType {
+  INTENT_TYPE_UNSPECIFIED = 0;
+  INTENT_TYPE_GREETING = 1;
+  INTENT_TYPE_BORROW_HELP = 2;
+  INTENT_TYPE_RETURN_HELP = 3;
+  INTENT_TYPE_ORDER_HELP = 4;
+  INTENT_TYPE_PAYMENT_HELP = 5;
+  INTENT_TYPE_DEPOSIT_HELP = 6;
+  INTENT_TYPE_COMPLAINT_HELP = 7;
+  INTENT_TYPE_UNKNOWN = 8;
+}
+
+message SendMessageRequest {
+  string session_id = 1;
+  string content = 2;
+  string client_req_id = 3;
+}
+
+message SendMessageReply {
+  string session_id = 1;
+  uint64 turn_id = 2;
+  IntentType intent = 3;
+  string reply = 4;
+  bool used_fallback = 5;
+}
+
+message ListSessionTurnsRequest {
+  string session_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+message SessionTurn {
+  uint64 id = 1;
+  string session_id = 2;
+  string user_message = 3;
+  string assistant_message = 4;
+  IntentType intent = 5;
+  bool used_fallback = 6;
+  int64 created_at = 7;
+}
+
+message ListSessionTurnsReply {
+  repeated SessionTurn items = 1;
+}

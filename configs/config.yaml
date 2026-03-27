@@ -1,0 +1,57 @@
+server:
+  http:
+    addr: 0.0.0.0:8000
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:9000
+    timeout: 1s
+data:
+  database:
+    driver: mysql
+    source: root:4ay1nkal3u8ed77y@tcp(115.190.45.90:3306)/powerbank?parseTime=True&loc=Local
+  redis:
+    network: tcp
+    addr: 115.190.45.90:6379
+    password: 4ay1nkal3u8ed77y
+    db: 0
+    read_timeout: 0.2s
+    write_timeout: 0.2s
+  emqx:
+    enabled: false
+    broker: "tcp://127.0.0.1:1883"
+    ws_broker: "ws://127.0.0.1:8083/mqtt"
+    username: "admin"
+    password: "public"
+    client_id: "powerbank-backend"
+    topic_prefix: "powerbank/user"
+    default_sub_topic: "heartbeat/#"
+    qos: 1
+    connect_timeout: 3s
+jwt:
+  key: "secret"
+  issuer: "powerbank-user-center"
+  expire: 86400s
+payment:
+  wechat:
+    mock_enabled: true
+    app_id: "wx_mock_appid"
+    mch_id: "mch_mock_001"
+    api_v3_key: "mock_api_v3_key"
+    notify_url: "http://127.0.0.1:8000/v1/payments/wx/notify"
+    private_key_path: ""
+    platform_cert_path: ""
+  alipay:
+    mock_enabled: true
+    app_id: "alipay_mock_appid"
+    notify_url: "http://127.0.0.1:8000/v1/payments/alipay/notify"
+    private_key_path: ""
+    alipay_public_key_path: ""
+ai:
+  openai_compatible:
+    enabled: true
+    base_url: "https://api.deepseek.com/v1"
+    api_key: "sk-f0c2de2bf8524301b4867bcdb00c9cd5"
+    model: "deepseek-chat"
+    timeout: 5s
+    max_tokens: 512
+    temperature: 0.2

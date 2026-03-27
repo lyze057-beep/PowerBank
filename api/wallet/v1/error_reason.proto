@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package wallet.v1;
+
+option go_package = "github.com/go-kratos/kratos-layout/api/wallet/v1;v1";
+
+enum ErrorReason {
+  ERROR_REASON_UNSPECIFIED = 0;
+  INVALID_ARGUMENT = 1;
+  UNAUTHORIZED = 2;
+  BALANCE_CACHE_FAILED = 3;
+}
