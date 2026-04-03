@@ -178,6 +178,7 @@ type PaymentRepo interface {
 	CreateOrder(ctx context.Context, order *PaymentOrder) error
 	UpdatePrepay(ctx context.Context, outTradeNo, prepayID, codeURL string, jsapiParams map[string]string) error
 	GetByUIDAndOutTradeNo(ctx context.Context, uid, outTradeNo string) (*PaymentOrder, error)
+	GetByOutTradeNo(ctx context.Context, outTradeNo string) (*PaymentOrder, error)
 	HandleWxNotify(ctx context.Context, event *WxNotifyEvent) (bool, error)
 	HandleAlipayNotify(ctx context.Context, event *AlipayNotifyEvent) (bool, error)
 }
@@ -187,16 +188,18 @@ type PaymentUsecase struct {
 	repo    PaymentRepo
 	wx      WxPayGateway
 	alipay  AlipayGateway
+	notify  *NotifyUsecase
 	log     *log.Helper
 	nowFunc func() time.Time
 }
 
 // NewPaymentUsecase creates payment usecase.
-func NewPaymentUsecase(repo PaymentRepo, wx WxPayGateway, alipay AlipayGateway, logger log.Logger) *PaymentUsecase {
+func NewPaymentUsecase(repo PaymentRepo, wx WxPayGateway, alipay AlipayGateway, notify *NotifyUsecase, logger log.Logger) *PaymentUsecase {
 	return &PaymentUsecase{
 		repo:    repo,
 		wx:      wx,
 		alipay:  alipay,
+		notify:  notify,
 		log:     log.NewHelper(log.With(logger, "module", "biz/payment")),
 		nowFunc: time.Now,
 	}
@@ -290,7 +293,14 @@ func (uc *PaymentUsecase) HandleWxNotify(ctx context.Context, in WxNotifyInput) 
 	if !lockOK {
 		return false, nil
 	}
-	return uc.repo.HandleWxNotify(ctx, event)
+	processed, err := uc.repo.HandleWxNotify(ctx, event)
+	if err != nil {
+		return false, err
+	}
+	if processed && isWxPaySuccessState(event.TradeState) {
+		go uc.pushPaymentNotify(context.Background(), event.OutTradeNo)
+	}
+	return processed, nil
 }
 
 // HandleAlipayNotify verifies and processes alipay callback.
@@ -312,7 +322,14 @@ func (uc *PaymentUsecase) HandleAlipayNotify(ctx context.Context, in AlipayNotif
 	if !lockOK {
 		return false, nil
 	}
-	return uc.repo.HandleAlipayNotify(ctx, event)
+	processed, err := uc.repo.HandleAlipayNotify(ctx, event)
+	if err != nil {
+		return false, err
+	}
+	if processed && isAlipaySuccessState(event.TradeStatus) {
+		go uc.pushPaymentNotify(context.Background(), event.OutTradeNo)
+	}
+	return processed, nil
 }
 
 // AlipayHeartbeat checks alipay gateway health.
@@ -338,6 +355,44 @@ func validateCreateInput(in CreateWxPayOrderInput) error {
 		return ErrPaymentInvalidArgument
 	}
 	return nil
+}
+
+func (uc *PaymentUsecase) pushPaymentNotify(ctx context.Context, outTradeNo string) {
+	if uc.notify == nil {
+		uc.log.Warn("notify usecase is nil, skip payment success push")
+		return
+	}
+
+	order, err := uc.repo.GetByOutTradeNo(ctx, outTradeNo)
+	if err != nil || order == nil {
+		uc.log.Errorf("notify order not found: %s", outTradeNo)
+		return
+	}
+
+	title := "Recharge Credited"
+	content := fmt.Sprintf("Your recharge of %.2f CNY has been credited. Wallet balance is updated.", float64(order.Amount)/100.0)
+	if order.BizType == BizTypeRentOrder {
+		title = "Rent Order Paid"
+		content = fmt.Sprintf("Your rent order payment is complete. Paid %.2f CNY.", float64(order.Amount)/100.0)
+	}
+
+	_, _ = uc.notify.PushMessage(ctx, PushMessageInput{
+		UID:         order.UID,
+		Title:       title,
+		Content:     content,
+		BizType:     "PAYMENT_SUCCESS",
+		BizID:       order.OutTradeNo,
+		ClientReqID: "notify_pay_" + order.OutTradeNo,
+	})
+}
+
+func isWxPaySuccessState(state string) bool {
+	return strings.EqualFold(strings.TrimSpace(state), "SUCCESS")
+}
+
+func isAlipaySuccessState(state string) bool {
+	s := strings.ToUpper(strings.TrimSpace(state))
+	return s == "TRADE_SUCCESS" || s == "TRADE_FINISHED"
 }
 
 func (uc *PaymentUsecase) newOutTradeNo() string {

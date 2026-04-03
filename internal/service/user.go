@@ -12,12 +12,66 @@ import (
 type UserService struct {
 	v1.UnimplementedUserServiceServer
 
-	uc *biz.UserUsecase
+	uc  *biz.UserUsecase
+	auc *biz.AuthUsecase
 }
 
 // NewUserService creates user service.
-func NewUserService(uc *biz.UserUsecase) *UserService {
-	return &UserService{uc: uc}
+func NewUserService(uc *biz.UserUsecase, auc *biz.AuthUsecase) *UserService {
+	return &UserService{uc: uc, auc: auc}
+}
+
+// Register creates account then returns token.
+func (s *UserService) Register(ctx context.Context, req *v1.RegisterRequest) (*v1.AuthReply, error) {
+	token, err := s.auc.Register(ctx, biz.RegisterInput{
+		Mobile:   req.Mobile,
+		Password: req.Password,
+		Nickname: req.Nickname,
+		Avatar:   req.Avatar,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &v1.AuthReply{
+		TokenType:   token.TokenType,
+		AccessToken: token.AccessToken,
+		ExpiresIn:   token.ExpiresIn,
+		ExpireAt:    token.ExpireAt,
+		Uid:         token.UID,
+	}, nil
+}
+
+// Login validates account/password then returns token.
+func (s *UserService) Login(ctx context.Context, req *v1.LoginRequest) (*v1.AuthReply, error) {
+	token, err := s.auc.Login(ctx, biz.LoginInput{
+		Mobile:   req.Mobile,
+		Password: req.Password,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &v1.AuthReply{
+		TokenType:   token.TokenType,
+		AccessToken: token.AccessToken,
+		ExpiresIn:   token.ExpiresIn,
+		ExpireAt:    token.ExpireAt,
+		Uid:         token.UID,
+	}, nil
+}
+
+// MockLogin generates a valid token for debug without password/db check.
+func (s *UserService) MockLogin(ctx context.Context, req *v1.MockLoginRequest) (*v1.AuthReply, error) {
+	token, err := s.auc.GenerateMockToken(ctx, req.Uid)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.AuthReply{
+		TokenType:   token.TokenType,
+		AccessToken: token.AccessToken,
+		ExpiresIn:   token.ExpiresIn,
+		ExpireAt:    token.ExpireAt,
+		Uid:         token.UID,
+	}, nil
 }
 
 // GetProfile returns current user profile by jwt uid.

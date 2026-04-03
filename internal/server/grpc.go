@@ -28,6 +28,7 @@ func NewGRPCServer(c *conf.Server, jwtConf *conf.JWT, greeter *service.GreeterSe
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
+			DebugAuth(),
 			selector.Server(
 				jwt.Server(
 					pkg.BuildJWTKeyFunc(secret),

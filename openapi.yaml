@@ -195,6 +195,42 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/support.v1.ListSessionTurnsReply'
+    /v1/user/login:
+        post:
+            tags:
+                - UserService
+            operationId: UserService_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/user.v1.LoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user.v1.AuthReply'
+    /v1/user/mock_login:
+        post:
+            tags:
+                - UserService
+            operationId: UserService_MockLogin
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/user.v1.MockLoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user.v1.AuthReply'
     /v1/user/profile:
         get:
             tags:
@@ -224,6 +260,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/user.v1.UpdateProfileReply'
+    /v1/user/register:
+        post:
+            tags:
+                - UserService
+            operationId: UserService_Register
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/user.v1.RegisterRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/user.v1.AuthReply'
     /v1/user/session:
         get:
             tags:
@@ -492,6 +546,19 @@ components:
                     type: boolean
                 createdAt:
                     type: string
+        user.v1.AuthReply:
+            type: object
+            properties:
+                tokenType:
+                    type: string
+                accessToken:
+                    type: string
+                expiresIn:
+                    type: string
+                expireAt:
+                    type: string
+                uid:
+                    type: string
         user.v1.CheckLoginStateReply:
             type: object
             properties:
@@ -506,6 +573,29 @@ components:
             properties:
                 profile:
                     $ref: '#/components/schemas/user.v1.UserProfile'
+        user.v1.LoginRequest:
+            type: object
+            properties:
+                mobile:
+                    type: string
+                password:
+                    type: string
+        user.v1.MockLoginRequest:
+            type: object
+            properties:
+                uid:
+                    type: string
+        user.v1.RegisterRequest:
+            type: object
+            properties:
+                mobile:
+                    type: string
+                password:
+                    type: string
+                nickname:
+                    type: string
+                avatar:
+                    type: string
         user.v1.UpdateProfileReply:
             type: object
             properties:

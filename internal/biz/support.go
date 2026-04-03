@@ -261,7 +261,7 @@ func (uc *SupportUsecase) detectIntent(content string) IntentType {
 		return IntentBorrowHelp
 	case containsAny(c, "归还", "还充电宝", "还不了", "无法归还"):
 		return IntentReturnHelp
-	case containsAny(c, "订单", "账单", "扣费", "费用"):
+	case containsAny(c, "订单", "账单", "扣费", "费用", "余额"):
 		return IntentOrderHelp
 	case containsAny(c, "支付", "微信", "支付宝", "支付失败"):
 		return IntentPayment

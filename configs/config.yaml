@@ -1,10 +1,10 @@
 server:
   http:
     addr: 0.0.0.0:8000
-    timeout: 1s
+    timeout: 60s
   grpc:
     addr: 0.0.0.0:9000
-    timeout: 1s
+    timeout: 60s
 data:
   database:
     driver: mysql
@@ -14,8 +14,8 @@ data:
     addr: 115.190.45.90:6379
     password: 4ay1nkal3u8ed77y
     db: 0
-    read_timeout: 0.2s
-    write_timeout: 0.2s
+    read_timeout: 3s
+    write_timeout: 3s
   emqx:
     enabled: false
     broker: "tcp://127.0.0.1:1883"
@@ -49,9 +49,9 @@ payment:
 ai:
   openai_compatible:
     enabled: true
-    base_url: "https://api.deepseek.com/v1"
-    api_key: "sk-f0c2de2bf8524301b4867bcdb00c9cd5"
-    model: "deepseek-chat"
-    timeout: 5s
+    base_url: "http://127.0.0.1:11434/v1"
+    api_key: "ollama"
+    model: "llama3.1:latest"
+    timeout: 30s
     max_tokens: 512
     temperature: 0.2

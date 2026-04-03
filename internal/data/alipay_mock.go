@@ -59,6 +59,9 @@ func (g *alipayGateway) VerifyNotify(_ context.Context, in biz.AlipayNotifyInput
 	if !g.cfg.MockEnabled {
 		return errors.New(501, "PAYMENT_UNIMPLEMENTED", "real alipay verify is not implemented yet")
 	}
+	if strings.EqualFold(in.Signature, "MOCK_SIGN") {
+		return nil
+	}
 	if strings.TrimSpace(in.Signature) == "" || strings.TrimSpace(in.NotifyID) == "" {
 		return biz.ErrPaymentSignVerifyFail
 	}

@@ -139,12 +139,16 @@ func (uc *NotifyUsecase) PushMessage(ctx context.Context, in PushMessageInput) (
 	})
 	if err = uc.notifier.Publish(ctx, in.Topic, payload); err != nil {
 		_ = uc.repo.MarkFailed(ctx, record.ID, err.Error())
+		record.Status = MessageStatusFailed
+		record.FailedReason = err.Error()
+		uc.log.Warnf("notify publish failed but record saved: id=%d err=%v", record.ID, err)
 		return nil, ErrNotifyPublishFailed
+	} else {
+		if err = uc.repo.MarkSent(ctx, record.ID); err != nil {
+			return nil, err
+		}
+		record.Status = MessageStatusSent
 	}
-	if err = uc.repo.MarkSent(ctx, record.ID); err != nil {
-		return nil, err
-	}
-	record.Status = MessageStatusSent
 	return record, nil
 }
 

@@ -31,6 +31,9 @@ func (svcRepo) UpdatePrepay(context.Context, string, string, string, map[string]
 func (svcRepo) GetByUIDAndOutTradeNo(context.Context, string, string) (*biz.PaymentOrder, error) {
 	return &biz.PaymentOrder{OutTradeNo: "otn_1"}, nil
 }
+func (svcRepo) GetByOutTradeNo(context.Context, string) (*biz.PaymentOrder, error) {
+	return &biz.PaymentOrder{OutTradeNo: "otn_1"}, nil
+}
 func (svcRepo) HandleWxNotify(context.Context, *biz.WxNotifyEvent) (bool, error) { return true, nil }
 func (svcRepo) HandleAlipayNotify(context.Context, *biz.AlipayNotifyEvent) (bool, error) {
 	return true, nil
@@ -63,7 +66,7 @@ func (a svcAli) ParseNotify(context.Context, string) (*biz.AlipayNotifyEvent, er
 func (a svcAli) Heartbeat(context.Context) error { return a.heartbeatErr }
 
 func TestCreateWxPayOrderRequireJWT(t *testing.T) {
-	uc := biz.NewPaymentUsecase(svcRepo{}, svcWx{}, svcAli{}, log.NewStdLogger(io.Discard))
+	uc := biz.NewPaymentUsecase(svcRepo{}, svcWx{}, svcAli{}, nil, log.NewStdLogger(io.Discard))
 	svc := NewPaymentService(uc)
 	_, err := svc.CreateWxPayOrder(context.Background(), &payv1.CreateWxPayOrderRequest{
 		PayMode:     payv1.PayMode_PAY_MODE_NATIVE,
@@ -82,7 +85,7 @@ func TestCreateWxPayOrderRequireJWT(t *testing.T) {
 }
 
 func TestWxPayNotifyNoJWTButVerifySign(t *testing.T) {
-	uc := biz.NewPaymentUsecase(svcRepo{}, svcWx{verifyErr: errors.New("bad signature")}, svcAli{}, log.NewStdLogger(io.Discard))
+	uc := biz.NewPaymentUsecase(svcRepo{}, svcWx{verifyErr: errors.New("bad signature")}, svcAli{}, nil, log.NewStdLogger(io.Discard))
 	svc := NewPaymentService(uc)
 	_, err := svc.WxPayNotify(context.Background(), &payv1.WxPayNotifyRequest{
 		Body:      `{"event_id":"evt_1","out_trade_no":"otn_1","trade_state":"SUCCESS"}`,
@@ -100,7 +103,7 @@ func TestWxPayNotifyNoJWTButVerifySign(t *testing.T) {
 }
 
 func TestAlipayNotifyNoJWTButVerifySign(t *testing.T) {
-	uc := biz.NewPaymentUsecase(svcRepo{}, svcWx{}, svcAli{verifyErr: errors.New("bad signature")}, log.NewStdLogger(io.Discard))
+	uc := biz.NewPaymentUsecase(svcRepo{}, svcWx{}, svcAli{verifyErr: errors.New("bad signature")}, nil, log.NewStdLogger(io.Discard))
 	svc := NewPaymentService(uc)
 	_, err := svc.AlipayNotify(context.Background(), &payv1.AlipayNotifyRequest{
 		Body:      `{"notify_id":"ali_evt_1","out_trade_no":"ali_otn_1","trade_status":"TRADE_SUCCESS"}`,
@@ -117,7 +120,7 @@ func TestAlipayNotifyNoJWTButVerifySign(t *testing.T) {
 }
 
 func TestAlipayHeartbeat(t *testing.T) {
-	uc := biz.NewPaymentUsecase(svcRepo{}, svcWx{}, svcAli{}, log.NewStdLogger(io.Discard))
+	uc := biz.NewPaymentUsecase(svcRepo{}, svcWx{}, svcAli{}, nil, log.NewStdLogger(io.Discard))
 	svc := NewPaymentService(uc)
 	reply, err := svc.AlipayHeartbeat(context.Background(), &payv1.AlipayHeartbeatRequest{})
 	if err != nil {

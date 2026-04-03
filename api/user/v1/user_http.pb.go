@@ -21,19 +21,94 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationUserServiceCheckLoginState = "/user.v1.UserService/CheckLoginState"
 const OperationUserServiceGetProfile = "/user.v1.UserService/GetProfile"
+const OperationUserServiceLogin = "/user.v1.UserService/Login"
+const OperationUserServiceMockLogin = "/user.v1.UserService/MockLogin"
+const OperationUserServiceRegister = "/user.v1.UserService/Register"
 const OperationUserServiceUpdateProfile = "/user.v1.UserService/UpdateProfile"
 
 type UserServiceHTTPServer interface {
 	CheckLoginState(context.Context, *CheckLoginStateRequest) (*CheckLoginStateReply, error)
 	GetProfile(context.Context, *GetProfileRequest) (*GetProfileReply, error)
+	Login(context.Context, *LoginRequest) (*AuthReply, error)
+	MockLogin(context.Context, *MockLoginRequest) (*AuthReply, error)
+	Register(context.Context, *RegisterRequest) (*AuthReply, error)
 	UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileReply, error)
 }
 
 func RegisterUserServiceHTTPServer(s *http.Server, srv UserServiceHTTPServer) {
 	r := s.Route("/")
+	r.POST("/v1/user/register", _UserService_Register0_HTTP_Handler(srv))
+	r.POST("/v1/user/login", _UserService_Login0_HTTP_Handler(srv))
+	r.POST("/v1/user/mock_login", _UserService_MockLogin0_HTTP_Handler(srv))
 	r.GET("/v1/user/profile", _UserService_GetProfile0_HTTP_Handler(srv))
 	r.PUT("/v1/user/profile", _UserService_UpdateProfile0_HTTP_Handler(srv))
 	r.GET("/v1/user/session", _UserService_CheckLoginState0_HTTP_Handler(srv))
+}
+
+func _UserService_Register0_HTTP_Handler(srv UserServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RegisterRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserServiceRegister)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.Register(ctx, req.(*RegisterRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AuthReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _UserService_Login0_HTTP_Handler(srv UserServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in LoginRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserServiceLogin)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.Login(ctx, req.(*LoginRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AuthReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _UserService_MockLogin0_HTTP_Handler(srv UserServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in MockLoginRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserServiceMockLogin)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.MockLogin(ctx, req.(*MockLoginRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AuthReply)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _UserService_GetProfile0_HTTP_Handler(srv UserServiceHTTPServer) func(ctx http.Context) error {
@@ -99,6 +174,9 @@ func _UserService_CheckLoginState0_HTTP_Handler(srv UserServiceHTTPServer) func(
 type UserServiceHTTPClient interface {
 	CheckLoginState(ctx context.Context, req *CheckLoginStateRequest, opts ...http.CallOption) (rsp *CheckLoginStateReply, err error)
 	GetProfile(ctx context.Context, req *GetProfileRequest, opts ...http.CallOption) (rsp *GetProfileReply, err error)
+	Login(ctx context.Context, req *LoginRequest, opts ...http.CallOption) (rsp *AuthReply, err error)
+	MockLogin(ctx context.Context, req *MockLoginRequest, opts ...http.CallOption) (rsp *AuthReply, err error)
+	Register(ctx context.Context, req *RegisterRequest, opts ...http.CallOption) (rsp *AuthReply, err error)
 	UpdateProfile(ctx context.Context, req *UpdateProfileRequest, opts ...http.CallOption) (rsp *UpdateProfileReply, err error)
 }
 
@@ -130,6 +208,45 @@ func (c *UserServiceHTTPClientImpl) GetProfile(ctx context.Context, in *GetProfi
 	opts = append(opts, http.Operation(OperationUserServiceGetProfile))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *UserServiceHTTPClientImpl) Login(ctx context.Context, in *LoginRequest, opts ...http.CallOption) (*AuthReply, error) {
+	var out AuthReply
+	pattern := "/v1/user/login"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationUserServiceLogin))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *UserServiceHTTPClientImpl) MockLogin(ctx context.Context, in *MockLoginRequest, opts ...http.CallOption) (*AuthReply, error) {
+	var out AuthReply
+	pattern := "/v1/user/mock_login"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationUserServiceMockLogin))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *UserServiceHTTPClientImpl) Register(ctx context.Context, in *RegisterRequest, opts ...http.CallOption) (*AuthReply, error) {
+	var out AuthReply
+	pattern := "/v1/user/register"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationUserServiceRegister))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

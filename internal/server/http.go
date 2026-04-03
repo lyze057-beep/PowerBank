@@ -20,7 +20,7 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, jwtConf *conf.JWT, greeter *service.GreeterService, user *service.UserService, payment *service.PaymentService, wallet *service.WalletService, notify *service.NotifyService, support *service.SupportService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, jwtConf *conf.JWT, greeter *service.GreeterService, auth *service.AuthService, user *service.UserService, payment *service.PaymentService, wallet *service.WalletService, notify *service.NotifyService, support *service.SupportService, logger log.Logger) *http.Server {
 	secret := "secret"
 	if jwtConf != nil && jwtConf.Key != "" {
 		secret = jwtConf.Key
@@ -28,6 +28,7 @@ func NewHTTPServer(c *conf.Server, jwtConf *conf.JWT, greeter *service.GreeterSe
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
+			DebugAuth(),
 			selector.Server(
 				jwt.Server(
 					pkg.BuildJWTKeyFunc(secret),
@@ -53,5 +54,6 @@ func NewHTTPServer(c *conf.Server, jwtConf *conf.JWT, greeter *service.GreeterSe
 	walletv1.RegisterWalletServiceHTTPServer(srv, wallet)
 	notifyv1.RegisterNotifyServiceHTTPServer(srv, notify)
 	supportv1.RegisterSupportServiceHTTPServer(srv, support)
+	registerAuthHTTPServer(srv, auth)
 	return srv
 }

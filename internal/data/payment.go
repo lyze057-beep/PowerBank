@@ -112,6 +112,15 @@ LIMIT 1`
 	return r.scanOrder(ctx, query, uid, outTradeNo)
 }
 
+func (r *paymentRepo) GetByOutTradeNo(ctx context.Context, outTradeNo string) (*biz.PaymentOrder, error) {
+	const query = `SELECT id, uid, out_trade_no, client_req_id, channel, pay_mode, biz_type, biz_order_no, amount,
+status, prepay_id, code_url, jsapi_params, transaction_id
+FROM payment_orders
+WHERE out_trade_no = ? AND deleted_at IS NULL
+LIMIT 1`
+	return r.scanOrder(ctx, query, outTradeNo)
+}
+
 func (r *paymentRepo) HandleWxNotify(ctx context.Context, event *biz.WxNotifyEvent) (bool, error) {
 	return r.handleNotify(ctx, notifyHandleInput{
 		channel:       biz.PayChannelWx,

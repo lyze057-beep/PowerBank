@@ -44,24 +44,52 @@ func (supportSvcModel) Chat(context.Context, biz.ModelChatInput) (*biz.ModelChat
 
 // Dummy repos for Usecase dependencies
 type supportSvcUserRepo struct{}
+
 func (supportSvcUserRepo) FindByUID(context.Context, string) (*biz.User, error) { return nil, nil }
-func (supportSvcUserRepo) UpdateProfile(context.Context, string, biz.UpdateProfileInput) (*biz.User, error) { return nil, nil }
-func (supportSvcUserRepo) CheckLoginState(context.Context, string, string) (bool, error) { return true, nil }
+func (supportSvcUserRepo) UpdateProfile(context.Context, string, biz.UpdateProfileInput) (*biz.User, error) {
+	return nil, nil
+}
+func (supportSvcUserRepo) CheckLoginState(context.Context, string, string) (bool, error) {
+	return true, nil
+}
 
 type supportSvcWalletRepo struct{}
+
 func (supportSvcWalletRepo) GetBalance(context.Context, string) (int64, error) { return 0, nil }
-func (supportSvcWalletRepo) GetCachedBalance(context.Context, string) (int64, bool, error) { return 0, false, nil }
-func (supportSvcWalletRepo) SetCachedBalance(context.Context, string, int64, time.Duration) error { return nil }
+func (supportSvcWalletRepo) GetCachedBalance(context.Context, string) (int64, bool, error) {
+	return 0, false, nil
+}
+func (supportSvcWalletRepo) SetCachedBalance(context.Context, string, int64, time.Duration) error {
+	return nil
+}
 
 type supportSvcPaymentRepo struct{}
-func (supportSvcPaymentRepo) AcquireCreateIdempotent(context.Context, string, string, time.Duration) (bool, error) { return true, nil }
-func (supportSvcPaymentRepo) AcquireNotifyLock(context.Context, string, time.Duration) (bool, error) { return true, nil }
-func (supportSvcPaymentRepo) FindByUIDAndClientReqID(context.Context, string, string) (*biz.PaymentOrder, error) { return nil, nil }
+
+func (supportSvcPaymentRepo) AcquireCreateIdempotent(context.Context, string, string, time.Duration) (bool, error) {
+	return true, nil
+}
+func (supportSvcPaymentRepo) AcquireNotifyLock(context.Context, string, time.Duration) (bool, error) {
+	return true, nil
+}
+func (supportSvcPaymentRepo) FindByUIDAndClientReqID(context.Context, string, string) (*biz.PaymentOrder, error) {
+	return nil, nil
+}
 func (supportSvcPaymentRepo) CreateOrder(context.Context, *biz.PaymentOrder) error { return nil }
-func (supportSvcPaymentRepo) UpdatePrepay(context.Context, string, string, string, map[string]string) error { return nil }
-func (supportSvcPaymentRepo) GetByUIDAndOutTradeNo(context.Context, string, string) (*biz.PaymentOrder, error) { return nil, nil }
-func (supportSvcPaymentRepo) HandleWxNotify(context.Context, *biz.WxNotifyEvent) (bool, error) { return true, nil }
-func (supportSvcPaymentRepo) HandleAlipayNotify(context.Context, *biz.AlipayNotifyEvent) (bool, error) { return true, nil }
+func (supportSvcPaymentRepo) UpdatePrepay(context.Context, string, string, string, map[string]string) error {
+	return nil
+}
+func (supportSvcPaymentRepo) GetByUIDAndOutTradeNo(context.Context, string, string) (*biz.PaymentOrder, error) {
+	return nil, nil
+}
+func (supportSvcPaymentRepo) GetByOutTradeNo(context.Context, string) (*biz.PaymentOrder, error) {
+	return nil, nil
+}
+func (supportSvcPaymentRepo) HandleWxNotify(context.Context, *biz.WxNotifyEvent) (bool, error) {
+	return true, nil
+}
+func (supportSvcPaymentRepo) HandleAlipayNotify(context.Context, *biz.AlipayNotifyEvent) (bool, error) {
+	return true, nil
+}
 
 func TestSupportSendMessageRequireJWT(t *testing.T) {
 	userUC := biz.NewUserUsecase(supportSvcUserRepo{}, log.NewStdLogger(io.Discard))

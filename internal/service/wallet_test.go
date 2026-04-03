@@ -30,6 +30,9 @@ func (walletSvcPayRepo) UpdatePrepay(context.Context, string, string, string, ma
 func (walletSvcPayRepo) GetByUIDAndOutTradeNo(context.Context, string, string) (*biz.PaymentOrder, error) {
 	return &biz.PaymentOrder{OutTradeNo: "otn_1", Status: biz.PayStatusPaying, Channel: biz.PayChannelWx}, nil
 }
+func (walletSvcPayRepo) GetByOutTradeNo(context.Context, string) (*biz.PaymentOrder, error) {
+	return &biz.PaymentOrder{OutTradeNo: "otn_1", Status: biz.PayStatusPaying, Channel: biz.PayChannelWx}, nil
+}
 func (walletSvcPayRepo) HandleWxNotify(context.Context, *biz.WxNotifyEvent) (bool, error) {
 	return true, nil
 }

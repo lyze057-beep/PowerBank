@@ -7,6 +7,27 @@ option go_package = "github.com/go-kratos/kratos-layout/api/user/v1;v1";
 import "google/api/annotations.proto";
 
 service UserService {
+  rpc Register (RegisterRequest) returns (AuthReply) {
+    option (google.api.http) = {
+      post: "/v1/user/register"
+      body: "*"
+    };
+  }
+
+  rpc Login (LoginRequest) returns (AuthReply) {
+    option (google.api.http) = {
+      post: "/v1/user/login"
+      body: "*"
+    };
+  }
+
+  rpc MockLogin (MockLoginRequest) returns (AuthReply) {
+    option (google.api.http) = {
+      post: "/v1/user/mock_login"
+      body: "*"
+    };
+  }
+
   rpc GetProfile (GetProfileRequest) returns (GetProfileReply) {
     option (google.api.http) = {
       get: "/v1/user/profile"
@@ -25,6 +46,30 @@ service UserService {
       get: "/v1/user/session"
     };
   }
+}
+
+message RegisterRequest {
+  string mobile = 1;
+  string password = 2;
+  string nickname = 3;
+  string avatar = 4;
+}
+
+message LoginRequest {
+  string mobile = 1;
+  string password = 2;
+}
+
+message MockLoginRequest {
+  string uid = 1;
+}
+
+message AuthReply {
+  string token_type = 1;
+  string access_token = 2;
+  int64 expires_in = 3;
+  int64 expire_at = 4;
+  string uid = 5;
 }
 
 message UserProfile {

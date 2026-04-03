@@ -82,6 +82,9 @@ func (g *wxPayGateway) VerifyNotify(_ context.Context, in biz.WxNotifyInput) err
 	if !g.cfg.MockEnabled {
 		return errors.New(501, "PAYMENT_UNIMPLEMENTED", "real wechat sign verify is not implemented yet")
 	}
+	if strings.EqualFold(in.Signature, "MOCK_SIGN") {
+		return nil
+	}
 	if strings.TrimSpace(in.Signature) == "" {
 		return biz.ErrPaymentSignVerifyFail
 	}

@@ -40,6 +40,12 @@ func (m *mockPaymentRepo) GetByUIDAndOutTradeNo(context.Context, string, string)
 	}
 	return m.existing, nil
 }
+func (m *mockPaymentRepo) GetByOutTradeNo(context.Context, string) (*PaymentOrder, error) {
+	if m.created != nil {
+		return m.created, nil
+	}
+	return m.existing, nil
+}
 func (m *mockPaymentRepo) HandleWxNotify(context.Context, *WxNotifyEvent) (bool, error) {
 	return m.processed, nil
 }
@@ -90,7 +96,8 @@ func (m *mockAliGatewayForPayment) Heartbeat(context.Context) error {
 }
 
 func TestCreateWxPayOrderValidateMode(t *testing.T) {
-	uc := NewPaymentUsecase(&mockPaymentRepo{createLockOK: true}, &mockWxGateway{}, &mockAliGatewayForPayment{}, log.NewStdLogger(io.Discard))
+	repo := &mockPaymentRepo{createLockOK: true}
+	uc := NewPaymentUsecase(repo, &mockWxGateway{}, &mockAliGatewayForPayment{}, nil, log.NewStdLogger(io.Discard))
 	_, err := uc.CreateWxPayOrder(context.Background(), CreateWxPayOrderInput{
 		UID:         "u1001",
 		PayMode:     PayMode(99),
@@ -112,7 +119,7 @@ func TestCreateWxPayOrderDuplicateReturnsExisting(t *testing.T) {
 			Status:     PayStatusPaying,
 		},
 	}
-	uc := NewPaymentUsecase(repo, &mockWxGateway{}, &mockAliGatewayForPayment{}, log.NewStdLogger(io.Discard))
+	uc := NewPaymentUsecase(repo, &mockWxGateway{}, &mockAliGatewayForPayment{}, nil, log.NewStdLogger(io.Discard))
 	order, err := uc.CreateWxPayOrder(context.Background(), CreateWxPayOrderInput{
 		UID:         "u1001",
 		PayMode:     PayModeNative,
@@ -134,7 +141,7 @@ func TestHandleWxNotifyDuplicateOnlyOnce(t *testing.T) {
 		notifyLockOK: true,
 		processed:    false,
 	}
-	uc := NewPaymentUsecase(repo, &mockWxGateway{}, &mockAliGatewayForPayment{}, log.NewStdLogger(io.Discard))
+	uc := NewPaymentUsecase(repo, &mockWxGateway{}, &mockAliGatewayForPayment{}, nil, log.NewStdLogger(io.Discard))
 	processed, err := uc.HandleWxNotify(context.Background(), WxNotifyInput{
 		Body:      `{"event_id":"evt_1","out_trade_no":"otn_1","trade_state":"SUCCESS"}`,
 		Timestamp: "1",
@@ -154,7 +161,7 @@ func TestHandleAlipayNotifyDuplicateOnlyOnce(t *testing.T) {
 		notifyLockOK: true,
 		processed:    false,
 	}
-	uc := NewPaymentUsecase(repo, &mockWxGateway{}, &mockAliGatewayForPayment{}, log.NewStdLogger(io.Discard))
+	uc := NewPaymentUsecase(repo, &mockWxGateway{}, &mockAliGatewayForPayment{}, nil, log.NewStdLogger(io.Discard))
 	processed, err := uc.HandleAlipayNotify(context.Background(), AlipayNotifyInput{
 		Body:      `{"notify_id":"ali_evt_1","out_trade_no":"ali_otn_1","trade_status":"TRADE_SUCCESS"}`,
 		Signature: "sig",
