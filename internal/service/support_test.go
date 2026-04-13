@@ -94,7 +94,7 @@ func (supportSvcPaymentRepo) HandleAlipayNotify(context.Context, *biz.AlipayNoti
 func TestSupportSendMessageRequireJWT(t *testing.T) {
 	userUC := biz.NewUserUsecase(supportSvcUserRepo{}, log.NewStdLogger(io.Discard))
 	walletUC := biz.NewWalletUsecase(supportSvcPaymentRepo{}, supportSvcWalletRepo{}, nil, nil, log.NewStdLogger(io.Discard))
-	uc := biz.NewSupportUsecase(supportSvcRepo{}, supportSvcModel{}, userUC, walletUC, log.NewStdLogger(io.Discard))
+	uc := biz.NewSupportUsecase(supportSvcRepo{}, supportSvcModel{}, userUC, walletUC, nil, nil, log.NewStdLogger(io.Discard))
 	svc := NewSupportService(uc)
 	_, err := svc.SendMessage(context.Background(), &supportv1.SendMessageRequest{
 		Content:     "你好",
@@ -112,7 +112,7 @@ func TestSupportSendMessageRequireJWT(t *testing.T) {
 func TestSupportListSessionTurnsRequireJWT(t *testing.T) {
 	userUC := biz.NewUserUsecase(supportSvcUserRepo{}, log.NewStdLogger(io.Discard))
 	walletUC := biz.NewWalletUsecase(supportSvcPaymentRepo{}, supportSvcWalletRepo{}, nil, nil, log.NewStdLogger(io.Discard))
-	uc := biz.NewSupportUsecase(supportSvcRepo{}, supportSvcModel{}, userUC, walletUC, log.NewStdLogger(io.Discard))
+	uc := biz.NewSupportUsecase(supportSvcRepo{}, supportSvcModel{}, userUC, walletUC, nil, nil, log.NewStdLogger(io.Discard))
 	svc := NewSupportService(uc)
 	_, err := svc.ListSessionTurns(context.Background(), &supportv1.ListSessionTurnsRequest{
 		SessionId: "cs_1",

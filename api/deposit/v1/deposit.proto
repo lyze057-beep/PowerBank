@@ -1,0 +1,156 @@
+syntax = "proto3";
+
+package deposit.v1;
+
+option go_package = "github.com/go-kratos/kratos-layout/api/deposit/v1;v1";
+
+import "google/api/annotations.proto";
+
+service DepositService {
+  rpc GetDepositStatus (GetDepositStatusRequest) returns (GetDepositStatusReply) {
+    option (google.api.http) = {
+      get: "/v1/deposits/status"
+    };
+  }
+
+  rpc CreateDepositOrder (CreateDepositOrderRequest) returns (CreateDepositOrderReply) {
+    option (google.api.http) = {
+      post: "/v1/deposits/orders"
+      body: "*"
+    };
+  }
+
+  rpc ApplyDepositExemption (ApplyDepositExemptionRequest) returns (ApplyDepositExemptionReply) {
+    option (google.api.http) = {
+      post: "/v1/deposits/exemptions:apply"
+      body: "*"
+    };
+  }
+
+  rpc ListDepositRecords (ListDepositRecordsRequest) returns (ListDepositRecordsReply) {
+    option (google.api.http) = {
+      get: "/v1/deposits/records"
+    };
+  }
+}
+
+enum DepositStatus {
+  DEPOSIT_STATUS_UNSPECIFIED = 0;
+  DEPOSIT_STATUS_REQUIRED = 1;
+  DEPOSIT_STATUS_PAID = 2;
+  DEPOSIT_STATUS_EXEMPT = 3;
+}
+
+enum DepositRecordType {
+  DEPOSIT_RECORD_TYPE_UNSPECIFIED = 0;
+  DEPOSIT_RECORD_TYPE_ORDER = 1;
+  DEPOSIT_RECORD_TYPE_EXEMPTION = 2;
+}
+
+enum DepositOrderStatus {
+  DEPOSIT_ORDER_STATUS_UNSPECIFIED = 0;
+  DEPOSIT_ORDER_STATUS_INIT = 1;
+  DEPOSIT_ORDER_STATUS_PAYING = 2;
+  DEPOSIT_ORDER_STATUS_SUCCESS = 3;
+  DEPOSIT_ORDER_STATUS_FAILED = 4;
+  DEPOSIT_ORDER_STATUS_REFUNDED = 5;
+}
+
+enum DepositChannel {
+  DEPOSIT_CHANNEL_UNSPECIFIED = 0;
+  DEPOSIT_CHANNEL_WECHAT = 1;
+  DEPOSIT_CHANNEL_ALIPAY = 2;
+}
+
+enum DepositPayMode {
+  DEPOSIT_PAY_MODE_UNSPECIFIED = 0;
+  DEPOSIT_PAY_MODE_NATIVE = 1;
+  DEPOSIT_PAY_MODE_JSAPI = 2;
+}
+
+enum ExemptionProvider {
+  EXEMPTION_PROVIDER_UNSPECIFIED = 0;
+  EXEMPTION_PROVIDER_ALIPAY_CREDIT = 1;
+  EXEMPTION_PROVIDER_WECHAT_CREDIT = 2;
+}
+
+enum ExemptionStatus {
+  EXEMPTION_STATUS_UNSPECIFIED = 0;
+  EXEMPTION_STATUS_PENDING = 1;
+  EXEMPTION_STATUS_APPROVED = 2;
+  EXEMPTION_STATUS_REJECTED = 3;
+}
+
+message GetDepositStatusRequest {}
+
+message DepositProfile {
+  string uid = 1;
+  DepositStatus status = 2;
+  int64 deposit_amount = 3;
+  bool paid = 4;
+  bool exempt = 5;
+  string active_order_no = 6;
+  ExemptionProvider exempt_provider = 7;
+  int64 exempt_expire_at = 8;
+}
+
+message GetDepositStatusReply {
+  DepositProfile profile = 1;
+}
+
+message CreateDepositOrderRequest {
+  DepositChannel channel = 1;
+  DepositPayMode pay_mode = 2;
+  string client_req_id = 3;
+  string openid = 4;
+}
+
+message CreateDepositOrderReply {
+  string deposit_order_no = 1;
+  string out_trade_no = 2;
+  DepositOrderStatus status = 3;
+  int64 amount = 4;
+  string code_url = 5;
+  string pay_url = 6;
+  map<string, string> jsapi_params = 7;
+}
+
+message ApplyDepositExemptionRequest {
+  ExemptionProvider provider = 1;
+  string client_req_id = 2;
+}
+
+message ApplyDepositExemptionReply {
+  bool approved = 1;
+  string exemption_id = 2;
+  ExemptionStatus status = 3;
+  ExemptionProvider provider = 4;
+  int32 credit_score = 5;
+  string reason = 6;
+  int64 expire_at = 7;
+}
+
+message ListDepositRecordsRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message DepositRecord {
+  DepositRecordType record_type = 1;
+  string record_id = 2;
+  string deposit_order_no = 3;
+  string out_trade_no = 4;
+  DepositOrderStatus order_status = 5;
+  int64 amount = 6;
+  DepositChannel channel = 7;
+  ExemptionStatus exemption_status = 8;
+  ExemptionProvider exemption_provider = 9;
+  int32 credit_score = 10;
+  string reason = 11;
+  int64 created_at = 12;
+  int64 expire_at = 13;
+}
+
+message ListDepositRecordsReply {
+  repeated DepositRecord items = 1;
+}

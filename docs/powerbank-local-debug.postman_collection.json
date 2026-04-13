@@ -1,0 +1,116 @@
+{
+  "info": {
+    "name": "PowerBank Local Debug",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "baseUrl", "value": "http://127.0.0.1:8000"},
+    {"key": "debugUid", "value": "u_debug_paid"},
+    {"key": "stationA", "value": "STATION_DEMO_A"},
+    {"key": "stationB", "value": "STATION_DEMO_B"},
+    {"key": "returnSlot", "value": "SLOT_DEMO_B_01"},
+    {"key": "rentOrderNo", "value": "RO_FEE_ACTIVE_001"},
+    {"key": "depositOutTradeNo", "value": ""},
+    {"key": "rentPayOutTradeNo", "value": ""}
+  ],
+  "item": [
+    {
+      "name": "Deposit Status",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "x-debug-uid", "value": "{{debugUid}}"}],
+        "url": "{{baseUrl}}/v1/deposits/status"
+      }
+    },
+    {
+      "name": "Apply Deposit Exemption",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"},
+          {"key": "x-debug-uid", "value": "u_debug_need_deposit"}
+        ],
+        "body": {"mode": "raw", "raw": "{\n  \"provider\": 1,\n  \"clientReqId\": \"dep-exempt-001\"\n}"},
+        "url": "{{baseUrl}}/v1/deposits/exemptions:apply"
+      }
+    },
+    {
+      "name": "Create Deposit Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"},
+          {"key": "x-debug-uid", "value": "u_debug_need_deposit"}
+        ],
+        "body": {"mode": "raw", "raw": "{\n  \"channel\": 1,\n  \"payMode\": 1,\n  \"clientReqId\": \"dep-order-001\"\n}"},
+        "url": "{{baseUrl}}/v1/deposits/orders"
+      }
+    },
+    {
+      "name": "Scan Borrow",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"},
+          {"key": "x-debug-uid", "value": "{{debugUid}}"}
+        ],
+        "body": {"mode": "raw", "raw": "{\n  \"stationId\": \"{{stationA}}\",\n  \"clientReqId\": \"borrow-001\"\n}"},
+        "url": "{{baseUrl}}/v1/chargers/scan:borrow"
+      }
+    },
+    {
+      "name": "Notify Borrow Result",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"rentOrderNo\": \"{{rentOrderNo}}\",\n  \"success\": true,\n  \"reason\": \"\"\n}"},
+        "url": "{{baseUrl}}/v1/internal/chargers/borrow:notify"
+      }
+    },
+    {
+      "name": "Get Current Order",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "x-debug-uid", "value": "{{debugUid}}"}],
+        "url": "{{baseUrl}}/v1/orders/current"
+      }
+    },
+    {
+      "name": "Notify Return Result",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"rentOrderNo\": \"{{rentOrderNo}}\",\n  \"stationId\": \"{{stationB}}\",\n  \"slotId\": \"{{returnSlot}}\",\n  \"success\": true,\n  \"reason\": \"\"\n}"},
+        "url": "{{baseUrl}}/v1/internal/chargers/return:notify"
+      }
+    },
+    {
+      "name": "List Orders",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "x-debug-uid", "value": "{{debugUid}}"}],
+        "url": "{{baseUrl}}/v1/orders?page=1&pageSize=20"
+      }
+    },
+    {
+      "name": "Get Order Detail",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "x-debug-uid", "value": "{{debugUid}}"}],
+        "url": "{{baseUrl}}/v1/orders/{{rentOrderNo}}"
+      }
+    },
+    {
+      "name": "Report Order Exception",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"},
+          {"key": "x-debug-uid", "value": "{{debugUid}}"}
+        ],
+        "body": {"mode": "raw", "raw": "{\n  \"rentOrderNo\": \"{{rentOrderNo}}\",\n  \"exceptionType\": 1,\n  \"description\": \"归还仓门未打开\",\n  \"clientReqId\": \"order-exception-001\"\n}"},
+        "url": "{{baseUrl}}/v1/orders/{{rentOrderNo}}:reportException"
+      }
+    }
+  ]
+}

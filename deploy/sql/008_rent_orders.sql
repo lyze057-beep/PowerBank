@@ -1,0 +1,40 @@
+CREATE TABLE IF NOT EXISTS `rent_orders` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `uid` VARCHAR(64) NOT NULL,
+  `rent_order_no` VARCHAR(64) NOT NULL,
+  `client_req_id` VARCHAR(64) NOT NULL,
+  `station_id` VARCHAR(64) NOT NULL,
+  `return_station_id` VARCHAR(64) NOT NULL DEFAULT '',
+  `powerbank_id` VARCHAR(64) NOT NULL DEFAULT '',
+  `borrow_slot_id` VARCHAR(64) NOT NULL DEFAULT '',
+  `return_slot_id` VARCHAR(64) NOT NULL DEFAULT '',
+  `pricing_rule_id` VARCHAR(64) NOT NULL DEFAULT '',
+  `status` TINYINT NOT NULL DEFAULT 1 COMMENT '1=PENDING_BORROW,2=IN_USE,3=RETURN_PENDING,4=PAY_PENDING,5=COMPLETED,6=CANCELLED,7=EXCEPTION',
+  `pay_status` TINYINT NOT NULL DEFAULT 1 COMMENT '1=NOT_REQUIRED,2=UNPAID,3=PAID',
+  `deposit_amount` BIGINT NOT NULL DEFAULT 0,
+  `rent_fee` BIGINT NOT NULL DEFAULT 0,
+  `payment_out_trade_no` VARCHAR(64) NOT NULL DEFAULT '',
+  `borrowed_at` DATETIME(3) NULL DEFAULT NULL,
+  `returned_at` DATETIME(3) NULL DEFAULT NULL,
+  `exception_reported` TINYINT NOT NULL DEFAULT 0,
+  `exception_desc` VARCHAR(1000) NOT NULL DEFAULT '',
+  `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updated_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_rent_orders_order_no` (`rent_order_no`),
+  UNIQUE KEY `uk_rent_orders_uid_req` (`uid`, `client_req_id`),
+  KEY `idx_rent_orders_uid_status` (`uid`, `status`),
+  KEY `idx_rent_orders_powerbank_status` (`powerbank_id`, `status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `rent_order_events` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `rent_order_no` VARCHAR(64) NOT NULL,
+  `event_type` VARCHAR(64) NOT NULL,
+  `event_key` VARCHAR(128) NOT NULL DEFAULT '',
+  `payload` JSON NULL,
+  `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_rent_order_events_key` (`event_key`),
+  KEY `idx_rent_order_events_order` (`rent_order_no`, `id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

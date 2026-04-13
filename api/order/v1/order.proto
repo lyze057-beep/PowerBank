@@ -1,0 +1,126 @@
+syntax = "proto3";
+
+package order.v1;
+
+option go_package = "github.com/go-kratos/kratos-layout/api/order/v1;v1";
+
+import "google/api/annotations.proto";
+
+service OrderService {
+  rpc GetCurrentOrder (GetCurrentOrderRequest) returns (GetCurrentOrderReply) {
+    option (google.api.http) = {
+      get: "/v1/orders/current"
+    };
+  }
+
+  rpc ListOrders (ListOrdersRequest) returns (ListOrdersReply) {
+    option (google.api.http) = {
+      get: "/v1/orders"
+    };
+  }
+
+  rpc GetOrderDetail (GetOrderDetailRequest) returns (GetOrderDetailReply) {
+    option (google.api.http) = {
+      get: "/v1/orders/{rent_order_no}"
+    };
+  }
+
+  rpc ReportOrderException (ReportOrderExceptionRequest) returns (ReportOrderExceptionReply) {
+    option (google.api.http) = {
+      post: "/v1/orders/{rent_order_no}:reportException"
+      body: "*"
+    };
+  }
+}
+
+enum RentOrderStatus {
+  RENT_ORDER_STATUS_UNSPECIFIED = 0;
+  RENT_ORDER_STATUS_PENDING_BORROW = 1;
+  RENT_ORDER_STATUS_IN_USE = 2;
+  RENT_ORDER_STATUS_RETURN_PENDING = 3;
+  RENT_ORDER_STATUS_PAY_PENDING = 4;
+  RENT_ORDER_STATUS_COMPLETED = 5;
+  RENT_ORDER_STATUS_CANCELLED = 6;
+  RENT_ORDER_STATUS_EXCEPTION = 7;
+}
+
+enum RentPayStatus {
+  RENT_PAY_STATUS_UNSPECIFIED = 0;
+  RENT_PAY_STATUS_NOT_REQUIRED = 1;
+  RENT_PAY_STATUS_UNPAID = 2;
+  RENT_PAY_STATUS_PAID = 3;
+}
+
+enum ExceptionType {
+  EXCEPTION_TYPE_UNSPECIFIED = 0;
+  EXCEPTION_TYPE_RETURN_FAILURE = 1;
+  EXCEPTION_TYPE_DEVICE_DAMAGE = 2;
+  EXCEPTION_TYPE_WRONG_FEE = 3;
+  EXCEPTION_TYPE_OTHER = 4;
+}
+
+message OrderSummary {
+  string rent_order_no = 1;
+  string station_id = 2;
+  string powerbank_id = 3;
+  RentOrderStatus status = 4;
+  RentPayStatus pay_status = 5;
+  int64 rent_fee = 6;
+  int64 created_at = 7;
+  int64 borrow_at = 8;
+  int64 return_at = 9;
+}
+
+message OrderDetail {
+  string rent_order_no = 1;
+  string station_id = 2;
+  string return_station_id = 3;
+  string powerbank_id = 4;
+  string borrow_slot_id = 5;
+  string return_slot_id = 6;
+  RentOrderStatus status = 7;
+  RentPayStatus pay_status = 8;
+  int64 deposit_amount = 9;
+  int64 rent_fee = 10;
+  int64 borrow_at = 11;
+  int64 return_at = 12;
+  int64 created_at = 13;
+  string current_out_trade_no = 14;
+  string pricing_rule_name = 15;
+  bool exception_reported = 16;
+  string exception_desc = 17;
+}
+
+message GetCurrentOrderRequest {}
+
+message GetCurrentOrderReply {
+  OrderDetail order = 1;
+}
+
+message ListOrdersRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message ListOrdersReply {
+  repeated OrderSummary items = 1;
+}
+
+message GetOrderDetailRequest {
+  string rent_order_no = 1;
+}
+
+message GetOrderDetailReply {
+  OrderDetail order = 1;
+}
+
+message ReportOrderExceptionRequest {
+  string rent_order_no = 1;
+  ExceptionType exception_type = 2;
+  string description = 3;
+  string client_req_id = 4;
+}
+
+message ReportOrderExceptionReply {
+  bool success = 1;
+}

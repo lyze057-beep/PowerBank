@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package charger.v1;
+
+option go_package = "github.com/go-kratos/kratos-layout/api/charger/v1;v1";
+
+import "google/api/annotations.proto";
+
+service ChargerService {
+  rpc ScanBorrow (ScanBorrowRequest) returns (ScanBorrowReply) {
+    option (google.api.http) = {
+      post: "/v1/chargers/scan:borrow"
+      body: "*"
+    };
+  }
+
+  rpc NotifyBorrowResult (NotifyBorrowResultRequest) returns (NotifyBorrowResultReply) {
+    option (google.api.http) = {
+      post: "/v1/internal/chargers/borrow:notify"
+      body: "*"
+    };
+  }
+
+  rpc NotifyReturnResult (NotifyReturnResultRequest) returns (NotifyReturnResultReply) {
+    option (google.api.http) = {
+      post: "/v1/internal/chargers/return:notify"
+      body: "*"
+    };
+  }
+}
+
+enum BorrowStatus {
+  BORROW_STATUS_UNSPECIFIED = 0;
+  BORROW_STATUS_PENDING = 1;
+  BORROW_STATUS_SUCCESS = 2;
+}
+
+message ScanBorrowRequest {
+  string station_id = 1;
+  string client_req_id = 2;
+}
+
+message ScanBorrowReply {
+  string rent_order_no = 1;
+  string powerbank_id = 2;
+  string slot_id = 3;
+  BorrowStatus status = 4;
+}
+
+message NotifyBorrowResultRequest {
+  string rent_order_no = 1;
+  bool success = 2;
+  string reason = 3;
+}
+
+message NotifyBorrowResultReply {
+  bool success = 1;
+}
+
+message NotifyReturnResultRequest {
+  string rent_order_no = 1;
+  string station_id = 2;
+  string slot_id = 3;
+  bool success = 4;
+  string reason = 5;
+}
+
+message NotifyReturnResultReply {
+  bool success = 1;
+}

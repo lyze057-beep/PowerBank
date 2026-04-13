@@ -72,7 +72,7 @@ func TestSupportSendMessageDuplicate(t *testing.T) {
 	}
 	userUC := NewUserUsecase(&mockUserRepo{}, log.NewStdLogger(io.Discard))
 	walletUC := NewWalletUsecase(&mockPaymentRepo{}, &mockWalletRepo{}, nil, nil, log.NewStdLogger(io.Discard))
-	uc := NewSupportUsecase(repo, &mockModelGateway{}, userUC, walletUC, log.NewStdLogger(io.Discard))
+	uc := NewSupportUsecase(repo, &mockModelGateway{}, userUC, walletUC, nil, nil, log.NewStdLogger(io.Discard))
 	turn, err := uc.SendMessage(context.Background(), SendMessageInput{
 		UID:         "u1001",
 		Content:     "你好",
@@ -96,7 +96,7 @@ func TestSupportSendMessageModelFailedFallback(t *testing.T) {
 	}
 	userUC := NewUserUsecase(&mockUserRepo{}, log.NewStdLogger(io.Discard))
 	walletUC := NewWalletUsecase(&mockPaymentRepo{}, &mockWalletRepo{}, nil, nil, log.NewStdLogger(io.Discard))
-	uc := NewSupportUsecase(repo, &mockModelGateway{err: errors.New("timeout")}, userUC, walletUC, log.NewStdLogger(io.Discard))
+	uc := NewSupportUsecase(repo, &mockModelGateway{err: errors.New("timeout")}, userUC, walletUC, nil, nil, log.NewStdLogger(io.Discard))
 	turn, err := uc.SendMessage(context.Background(), SendMessageInput{
 		UID:         "u1001",
 		SessionID:   "cs_1",
@@ -118,7 +118,7 @@ func TestSupportListSessionTurnsSessionNotFound(t *testing.T) {
 	repo := &mockSupportRepo{sessionOK: false}
 	userUC := NewUserUsecase(&mockUserRepo{}, log.NewStdLogger(io.Discard))
 	walletUC := NewWalletUsecase(&mockPaymentRepo{}, &mockWalletRepo{}, nil, nil, log.NewStdLogger(io.Discard))
-	uc := NewSupportUsecase(repo, &mockModelGateway{}, userUC, walletUC, log.NewStdLogger(io.Discard))
+	uc := NewSupportUsecase(repo, &mockModelGateway{}, userUC, walletUC, nil, nil, log.NewStdLogger(io.Discard))
 	_, err := uc.ListSessionTurns(context.Background(), "u1001", "cs_x", 1, 20)
 	if err == nil {
 		t.Fatal("ListSessionTurns() err=nil, want non-nil")
@@ -156,7 +156,7 @@ func TestSupportSendMessageWithToolCalls(t *testing.T) {
 	walletUC := NewWalletUsecase(&mockPaymentRepo{}, walletRepo, nil, nil, log.NewStdLogger(io.Discard))
 	
 	// Custom gateway to handle variable response
-	uc := NewSupportUsecase(repo, &functionalMockGateway{chatFunc: modelChatMock}, userUC, walletUC, log.NewStdLogger(io.Discard))
+	uc := NewSupportUsecase(repo, &functionalMockGateway{chatFunc: modelChatMock}, userUC, walletUC, nil, nil, log.NewStdLogger(io.Discard))
 
 	turn, err := uc.SendMessage(context.Background(), SendMessageInput{
 		UID:         "u1001",

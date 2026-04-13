@@ -3,10 +3,13 @@ package server
 import (
 	v1 "github.com/go-kratos/kratos-layout/api/helloworld/v1"
 	notifyv1 "github.com/go-kratos/kratos-layout/api/notify/v1"
+	orderv1 "github.com/go-kratos/kratos-layout/api/order/v1"
 	paymentv1 "github.com/go-kratos/kratos-layout/api/payment/v1"
 	supportv1 "github.com/go-kratos/kratos-layout/api/support/v1"
 	userv1 "github.com/go-kratos/kratos-layout/api/user/v1"
 	walletv1 "github.com/go-kratos/kratos-layout/api/wallet/v1"
+	depositv1 "github.com/go-kratos/kratos-layout/api/deposit/v1"
+	chargerv1 "github.com/go-kratos/kratos-layout/api/charger/v1"
 	"github.com/go-kratos/kratos-layout/internal/conf"
 	"github.com/go-kratos/kratos-layout/internal/pkg"
 	"github.com/go-kratos/kratos-layout/internal/service"
@@ -20,7 +23,7 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, jwtConf *conf.JWT, greeter *service.GreeterService, auth *service.AuthService, user *service.UserService, payment *service.PaymentService, wallet *service.WalletService, notify *service.NotifyService, support *service.SupportService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, jwtConf *conf.JWT, greeter *service.GreeterService, auth *service.AuthService, user *service.UserService, payment *service.PaymentService, wallet *service.WalletService, notify *service.NotifyService, deposit *service.DepositService, charger *service.ChargerService, order *service.OrderService, support *service.SupportService, logger log.Logger) *http.Server {
 	secret := "secret"
 	if jwtConf != nil && jwtConf.Key != "" {
 		secret = jwtConf.Key
@@ -53,6 +56,9 @@ func NewHTTPServer(c *conf.Server, jwtConf *conf.JWT, greeter *service.GreeterSe
 	paymentv1.RegisterPaymentServiceHTTPServer(srv, payment)
 	walletv1.RegisterWalletServiceHTTPServer(srv, wallet)
 	notifyv1.RegisterNotifyServiceHTTPServer(srv, notify)
+	depositv1.RegisterDepositServiceHTTPServer(srv, deposit)
+	chargerv1.RegisterChargerServiceHTTPServer(srv, charger)
+	orderv1.RegisterOrderServiceHTTPServer(srv, order)
 	supportv1.RegisterSupportServiceHTTPServer(srv, support)
 	registerAuthHTTPServer(srv, auth)
 	return srv

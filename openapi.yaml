@@ -25,6 +25,131 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/helloworld.v1.HelloReply'
+    /v1/chargers/scan:borrow:
+        post:
+            tags:
+                - ChargerService
+            operationId: ChargerService_ScanBorrow
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/charger.v1.ScanBorrowRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/charger.v1.ScanBorrowReply'
+    /v1/deposits/exemptions:apply:
+        post:
+            tags:
+                - DepositService
+            operationId: DepositService_ApplyDepositExemption
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/deposit.v1.ApplyDepositExemptionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/deposit.v1.ApplyDepositExemptionReply'
+    /v1/deposits/orders:
+        post:
+            tags:
+                - DepositService
+            operationId: DepositService_CreateDepositOrder
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/deposit.v1.CreateDepositOrderRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/deposit.v1.CreateDepositOrderReply'
+    /v1/deposits/records:
+        get:
+            tags:
+                - DepositService
+            operationId: DepositService_ListDepositRecords
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/deposit.v1.ListDepositRecordsReply'
+    /v1/deposits/status:
+        get:
+            tags:
+                - DepositService
+            operationId: DepositService_GetDepositStatus
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/deposit.v1.GetDepositStatusReply'
+    /v1/internal/chargers/borrow:notify:
+        post:
+            tags:
+                - ChargerService
+            operationId: ChargerService_NotifyBorrowResult
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/charger.v1.NotifyBorrowResultRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/charger.v1.NotifyBorrowResultReply'
+    /v1/internal/chargers/return:notify:
+        post:
+            tags:
+                - ChargerService
+            operationId: ChargerService_NotifyReturnResult
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/charger.v1.NotifyReturnResultRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/charger.v1.NotifyReturnResultReply'
     /v1/notify/messages:
         get:
             tags:
@@ -65,6 +190,83 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/notify.v1.PushMessageReply'
+    /v1/orders:
+        get:
+            tags:
+                - OrderService
+            operationId: OrderService_ListOrders
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/order.v1.ListOrdersReply'
+    /v1/orders/current:
+        get:
+            tags:
+                - OrderService
+            operationId: OrderService_GetCurrentOrder
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/order.v1.GetCurrentOrderReply'
+    /v1/orders/{rentOrderNo}:
+        get:
+            tags:
+                - OrderService
+            operationId: OrderService_GetOrderDetail
+            parameters:
+                - name: rentOrderNo
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/order.v1.GetOrderDetailReply'
+    /v1/orders/{rentOrderNo}:reportException:
+        post:
+            tags:
+                - OrderService
+            operationId: OrderService_ReportOrderException
+            parameters:
+                - name: rentOrderNo
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/order.v1.ReportOrderExceptionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/order.v1.ReportOrderExceptionReply'
     /v1/payments/alipay/heartbeat:
         get:
             tags:
@@ -340,6 +542,186 @@ paths:
                                 $ref: '#/components/schemas/wallet.v1.CreateRechargeOrderReply'
 components:
     schemas:
+        charger.v1.NotifyBorrowResultReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        charger.v1.NotifyBorrowResultRequest:
+            type: object
+            properties:
+                rentOrderNo:
+                    type: string
+                success:
+                    type: boolean
+                reason:
+                    type: string
+        charger.v1.NotifyReturnResultReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        charger.v1.NotifyReturnResultRequest:
+            type: object
+            properties:
+                rentOrderNo:
+                    type: string
+                stationId:
+                    type: string
+                slotId:
+                    type: string
+                success:
+                    type: boolean
+                reason:
+                    type: string
+        charger.v1.ScanBorrowReply:
+            type: object
+            properties:
+                rentOrderNo:
+                    type: string
+                powerbankId:
+                    type: string
+                slotId:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+        charger.v1.ScanBorrowRequest:
+            type: object
+            properties:
+                stationId:
+                    type: string
+                clientReqId:
+                    type: string
+        deposit.v1.ApplyDepositExemptionReply:
+            type: object
+            properties:
+                approved:
+                    type: boolean
+                exemptionId:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+                provider:
+                    type: integer
+                    format: enum
+                creditScore:
+                    type: integer
+                    format: int32
+                reason:
+                    type: string
+                expireAt:
+                    type: string
+        deposit.v1.ApplyDepositExemptionRequest:
+            type: object
+            properties:
+                provider:
+                    type: integer
+                    format: enum
+                clientReqId:
+                    type: string
+        deposit.v1.CreateDepositOrderReply:
+            type: object
+            properties:
+                depositOrderNo:
+                    type: string
+                outTradeNo:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+                amount:
+                    type: string
+                codeUrl:
+                    type: string
+                payUrl:
+                    type: string
+                jsapiParams:
+                    type: object
+                    additionalProperties:
+                        type: string
+        deposit.v1.CreateDepositOrderRequest:
+            type: object
+            properties:
+                channel:
+                    type: integer
+                    format: enum
+                payMode:
+                    type: integer
+                    format: enum
+                clientReqId:
+                    type: string
+                openid:
+                    type: string
+        deposit.v1.DepositProfile:
+            type: object
+            properties:
+                uid:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+                depositAmount:
+                    type: string
+                paid:
+                    type: boolean
+                exempt:
+                    type: boolean
+                activeOrderNo:
+                    type: string
+                exemptProvider:
+                    type: integer
+                    format: enum
+                exemptExpireAt:
+                    type: string
+        deposit.v1.DepositRecord:
+            type: object
+            properties:
+                recordType:
+                    type: integer
+                    format: enum
+                recordId:
+                    type: string
+                depositOrderNo:
+                    type: string
+                outTradeNo:
+                    type: string
+                orderStatus:
+                    type: integer
+                    format: enum
+                amount:
+                    type: string
+                channel:
+                    type: integer
+                    format: enum
+                exemptionStatus:
+                    type: integer
+                    format: enum
+                exemptionProvider:
+                    type: integer
+                    format: enum
+                creditScore:
+                    type: integer
+                    format: int32
+                reason:
+                    type: string
+                createdAt:
+                    type: string
+                expireAt:
+                    type: string
+        deposit.v1.GetDepositStatusReply:
+            type: object
+            properties:
+                profile:
+                    $ref: '#/components/schemas/deposit.v1.DepositProfile'
+        deposit.v1.ListDepositRecordsReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/deposit.v1.DepositRecord'
         helloworld.v1.HelloReply:
             type: object
             properties:
@@ -399,6 +781,102 @@ components:
                 clientReqId:
                     type: string
                 topic:
+                    type: string
+        order.v1.GetCurrentOrderReply:
+            type: object
+            properties:
+                order:
+                    $ref: '#/components/schemas/order.v1.OrderDetail'
+        order.v1.GetOrderDetailReply:
+            type: object
+            properties:
+                order:
+                    $ref: '#/components/schemas/order.v1.OrderDetail'
+        order.v1.ListOrdersReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/order.v1.OrderSummary'
+        order.v1.OrderDetail:
+            type: object
+            properties:
+                rentOrderNo:
+                    type: string
+                stationId:
+                    type: string
+                returnStationId:
+                    type: string
+                powerbankId:
+                    type: string
+                borrowSlotId:
+                    type: string
+                returnSlotId:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+                payStatus:
+                    type: integer
+                    format: enum
+                depositAmount:
+                    type: string
+                rentFee:
+                    type: string
+                borrowAt:
+                    type: string
+                returnAt:
+                    type: string
+                createdAt:
+                    type: string
+                currentOutTradeNo:
+                    type: string
+                pricingRuleName:
+                    type: string
+                exceptionReported:
+                    type: boolean
+                exceptionDesc:
+                    type: string
+        order.v1.OrderSummary:
+            type: object
+            properties:
+                rentOrderNo:
+                    type: string
+                stationId:
+                    type: string
+                powerbankId:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+                payStatus:
+                    type: integer
+                    format: enum
+                rentFee:
+                    type: string
+                createdAt:
+                    type: string
+                borrowAt:
+                    type: string
+                returnAt:
+                    type: string
+        order.v1.ReportOrderExceptionReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+        order.v1.ReportOrderExceptionRequest:
+            type: object
+            properties:
+                rentOrderNo:
+                    type: string
+                exceptionType:
+                    type: integer
+                    format: enum
+                description:
+                    type: string
+                clientReqId:
                     type: string
         payment.v1.AlipayHeartbeatReply:
             type: object
@@ -673,9 +1151,12 @@ components:
                 balance:
                     type: string
 tags:
+    - name: ChargerService
+    - name: DepositService
     - name: Greeter
       description: The greeting service definition.
     - name: NotifyService
+    - name: OrderService
     - name: PaymentService
     - name: SupportService
     - name: UserService

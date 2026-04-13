@@ -121,17 +121,21 @@ type SupportUsecase struct {
 	model   ModelChatGateway
 	user    *UserUsecase
 	wallet  *WalletUsecase
+	deposit *DepositUsecase
+	order   *OrderUsecase
 	log     *log.Helper
 	nowFunc func() time.Time
 }
 
 // NewSupportUsecase creates support usecase.
-func NewSupportUsecase(repo SupportRepo, model ModelChatGateway, user *UserUsecase, wallet *WalletUsecase, logger log.Logger) *SupportUsecase {
+func NewSupportUsecase(repo SupportRepo, model ModelChatGateway, user *UserUsecase, wallet *WalletUsecase, deposit *DepositUsecase, order *OrderUsecase, logger log.Logger) *SupportUsecase {
 	return &SupportUsecase{
 		repo:    repo,
 		model:   model,
 		user:    user,
 		wallet:  wallet,
+		deposit: deposit,
+		order:   order,
 		log:     log.NewHelper(log.With(logger, "module", "biz/support")),
 		nowFunc: time.Now,
 	}
@@ -311,6 +315,22 @@ func (uc *SupportUsecase) buildTools() []ToolDefinition {
 				"properties": map[string]any{},
 			},
 		},
+		{
+			Name:        "get_deposit_status",
+			Description: "查询当前用户的押金和免押状态",
+			Parameters: map[string]any{
+				"type":       "object",
+				"properties": map[string]any{},
+			},
+		},
+		{
+			Name:        "get_current_order",
+			Description: "查询当前用户进行中的租借订单",
+			Parameters: map[string]any{
+				"type":       "object",
+				"properties": map[string]any{},
+			},
+		},
 	}
 }
 
@@ -332,6 +352,30 @@ func (uc *SupportUsecase) handleToolCalls(ctx context.Context, uid string, calls
 				resContent = fmt.Sprintf("Error: %v", err)
 			} else {
 				resContent = fmt.Sprintf("Balance: %d cents", balance)
+			}
+		case "get_deposit_status":
+			if uc.deposit == nil {
+				resContent = "Deposit status unavailable"
+			} else {
+				profile, err := uc.deposit.GetStatus(ctx, uid)
+				if err != nil {
+					resContent = fmt.Sprintf("Error: %v", err)
+				} else {
+					resContent = fmt.Sprintf("Deposit: status=%d paid=%t exempt=%t amount=%d expire_at=%d", profile.Status, profile.Paid, profile.Exempt, profile.DepositAmount, profile.ExemptExpireAt.Unix())
+				}
+			}
+		case "get_current_order":
+			if uc.order == nil {
+				resContent = "Current order unavailable"
+			} else {
+				order, err := uc.order.GetCurrentOrder(ctx, uid)
+				if err != nil {
+					resContent = fmt.Sprintf("Error: %v", err)
+				} else if order == nil {
+					resContent = "No active order"
+				} else {
+					resContent = fmt.Sprintf("Order: no=%s status=%d pay_status=%d rent_fee=%d powerbank=%s", order.RentOrderNo, order.Status, order.PayStatus, order.RentFee, order.PowerbankID)
+				}
 			}
 		default:
 			resContent = "Unknown tool"

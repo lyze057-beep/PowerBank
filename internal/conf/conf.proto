@@ -11,6 +11,7 @@ message Bootstrap {
   JWT jwt = 3;
   Payment payment = 4;
   AI ai = 5;
+  Credit credit = 6;
 }
 
 message Server {
@@ -96,4 +97,11 @@ message AI {
     float temperature = 7;
   }
   OpenAICompatible openai_compatible = 1;
+}
+
+message Credit {
+  bool enabled = 1;
+  int32 default_score = 2;
+  int32 approval_score = 3;
+  int32 exempt_days = 4;
 }

@@ -41,6 +41,7 @@ const (
 	BizTypeUnspecified BizType = 0
 	BizTypeRecharge    BizType = 1
 	BizTypeRentOrder   BizType = 2
+	BizTypeDeposit     BizType = 3
 )
 
 // PayStatus is payment order status.
@@ -348,7 +349,7 @@ func validateCreateInput(in CreateWxPayOrderInput) error {
 	if in.PayMode != PayModeNative && in.PayMode != PayModeJSAPI {
 		return ErrPaymentInvalidArgument
 	}
-	if in.BizType != BizTypeRecharge && in.BizType != BizTypeRentOrder {
+	if in.BizType != BizTypeRecharge && in.BizType != BizTypeRentOrder && in.BizType != BizTypeDeposit {
 		return ErrPaymentInvalidArgument
 	}
 	if in.PayMode == PayModeJSAPI && strings.TrimSpace(in.OpenID) == "" {
@@ -374,6 +375,9 @@ func (uc *PaymentUsecase) pushPaymentNotify(ctx context.Context, outTradeNo stri
 	if order.BizType == BizTypeRentOrder {
 		title = "Rent Order Paid"
 		content = fmt.Sprintf("Your rent order payment is complete. Paid %.2f CNY.", float64(order.Amount)/100.0)
+	} else if order.BizType == BizTypeDeposit {
+		title = "Deposit Paid"
+		content = fmt.Sprintf("Your deposit payment of %.2f CNY is complete.", float64(order.Amount)/100.0)
 	}
 
 	_, _ = uc.notify.PushMessage(ctx, PushMessageInput{

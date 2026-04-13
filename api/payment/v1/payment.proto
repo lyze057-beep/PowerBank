@@ -51,6 +51,7 @@ enum BizType {
   BIZ_TYPE_UNSPECIFIED = 0;
   BIZ_TYPE_RECHARGE = 1;
   BIZ_TYPE_RENT_ORDER = 2;
+  BIZ_TYPE_DEPOSIT = 3;
 }
 
 enum PayStatus {

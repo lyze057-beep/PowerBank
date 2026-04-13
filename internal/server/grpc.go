@@ -3,10 +3,13 @@ package server
 import (
 	v1 "github.com/go-kratos/kratos-layout/api/helloworld/v1"
 	notifyv1 "github.com/go-kratos/kratos-layout/api/notify/v1"
+	orderv1 "github.com/go-kratos/kratos-layout/api/order/v1"
 	paymentv1 "github.com/go-kratos/kratos-layout/api/payment/v1"
 	supportv1 "github.com/go-kratos/kratos-layout/api/support/v1"
 	userv1 "github.com/go-kratos/kratos-layout/api/user/v1"
 	walletv1 "github.com/go-kratos/kratos-layout/api/wallet/v1"
+	depositv1 "github.com/go-kratos/kratos-layout/api/deposit/v1"
+	chargerv1 "github.com/go-kratos/kratos-layout/api/charger/v1"
 	"github.com/go-kratos/kratos-layout/internal/conf"
 	"github.com/go-kratos/kratos-layout/internal/pkg"
 	"github.com/go-kratos/kratos-layout/internal/service"
@@ -20,7 +23,7 @@ import (
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, jwtConf *conf.JWT, greeter *service.GreeterService, user *service.UserService, payment *service.PaymentService, wallet *service.WalletService, notify *service.NotifyService, support *service.SupportService, logger log.Logger) *grpc.Server {
+func NewGRPCServer(c *conf.Server, jwtConf *conf.JWT, greeter *service.GreeterService, user *service.UserService, payment *service.PaymentService, wallet *service.WalletService, notify *service.NotifyService, deposit *service.DepositService, charger *service.ChargerService, order *service.OrderService, support *service.SupportService, logger log.Logger) *grpc.Server {
 	secret := "secret"
 	if jwtConf != nil && jwtConf.Key != "" {
 		secret = jwtConf.Key
@@ -53,6 +56,9 @@ func NewGRPCServer(c *conf.Server, jwtConf *conf.JWT, greeter *service.GreeterSe
 	paymentv1.RegisterPaymentServiceServer(srv, payment)
 	walletv1.RegisterWalletServiceServer(srv, wallet)
 	notifyv1.RegisterNotifyServiceServer(srv, notify)
+	depositv1.RegisterDepositServiceServer(srv, deposit)
+	chargerv1.RegisterChargerServiceServer(srv, charger)
+	orderv1.RegisterOrderServiceServer(srv, order)
 	supportv1.RegisterSupportServiceServer(srv, support)
 	return srv
 }

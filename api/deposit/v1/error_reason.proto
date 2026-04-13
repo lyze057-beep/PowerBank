@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package deposit.v1;
+
+option go_package = "github.com/go-kratos/kratos-layout/api/deposit/v1;v1";
+
+enum ErrorReason {
+  ERROR_REASON_UNSPECIFIED = 0;
+  INVALID_ARGUMENT = 1;
+  UNAUTHORIZED = 2;
+  DEPOSIT_ALREADY_PAID = 3;
+  DEPOSIT_ORDER_NOT_FOUND = 4;
+  DEPOSIT_EXEMPTION_REJECTED = 5;
+  DEPOSIT_EXEMPTION_ALREADY_ACTIVE = 6;
+  DEPOSIT_DUPLICATE_REQUEST = 7;
+}

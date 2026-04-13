@@ -203,15 +203,16 @@ VALUES(?, ?, ?, ?, ?, ?)`
 	}
 
 	var (
-		uid     string
-		bizType int32
-		amount  int64
+		uid        string
+		bizType    int32
+		bizOrderNo string
+		amount     int64
 	)
-	const queryOrder = `SELECT uid, biz_type, amount
+	const queryOrder = `SELECT uid, biz_type, biz_order_no, amount
 FROM payment_orders
 WHERE out_trade_no = ?
 LIMIT 1 FOR UPDATE`
-	if err = tx.QueryRowContext(ctx, queryOrder, in.outTradeNo).Scan(&uid, &bizType, &amount); err != nil {
+	if err = tx.QueryRowContext(ctx, queryOrder, in.outTradeNo).Scan(&uid, &bizType, &bizOrderNo, &amount); err != nil {
 		return false, err
 	}
 
@@ -252,6 +253,28 @@ ON DUPLICATE KEY UPDATE balance = balance + VALUES(balance), updated_at = NOW(3)
 			return false, err
 		}
 		invalidateUID = uid
+	}
+	if affected > 0 && bizType == int32(biz.BizTypeDeposit) {
+		const updateDepositOrder = `UPDATE deposit_orders SET status = ?, updated_at = NOW(3) WHERE out_trade_no = ?`
+		if _, err = tx.ExecContext(ctx, updateDepositOrder, int32(targetStatus), in.outTradeNo); err != nil {
+			return false, err
+		}
+		if targetStatus == biz.PayStatusSuccess {
+			const updateProfile = `UPDATE deposit_profiles
+SET status = ?, paid = 1, exempt = 0, active_deposit_order_no = ?, exempt_provider = '', exempt_expire_at = NULL, updated_at = NOW(3)
+WHERE uid = ?`
+			if _, err = tx.ExecContext(ctx, updateProfile, int32(biz.DepositStatusPaid), bizOrderNo, uid); err != nil {
+				return false, err
+			}
+		}
+	}
+	if affected > 0 && targetStatus == biz.PayStatusSuccess && bizType == int32(biz.BizTypeRentOrder) {
+		const updateRentOrder = `UPDATE rent_orders
+SET pay_status = ?, status = ?, payment_out_trade_no = ?, updated_at = NOW(3)
+WHERE rent_order_no = ?`
+		if _, err = tx.ExecContext(ctx, updateRentOrder, int32(biz.RentPayStatusPaid), int32(biz.RentOrderStatusCompleted), in.outTradeNo, bizOrderNo); err != nil {
+			return false, err
+		}
 	}
 	if err = tx.Commit(); err != nil {
 		return false, err

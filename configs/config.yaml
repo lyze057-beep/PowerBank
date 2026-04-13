@@ -55,3 +55,8 @@ ai:
     timeout: 30s
     max_tokens: 512
     temperature: 0.2
+credit:
+  enabled: true
+  default_score: 680
+  approval_score: 650
+  exempt_days: 30

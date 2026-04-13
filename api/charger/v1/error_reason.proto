@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package charger.v1;
+
+option go_package = "github.com/go-kratos/kratos-layout/api/charger/v1;v1";
+
+enum ErrorReason {
+  ERROR_REASON_UNSPECIFIED = 0;
+  INVALID_ARGUMENT = 1;
+  UNAUTHORIZED = 2;
+  CHARGER_STATION_NOT_FOUND = 3;
+  CHARGER_STATION_OFFLINE = 4;
+  CHARGER_NO_AVAILABLE_POWERBANK = 5;
+  CHARGER_DUPLICATE_REQUEST = 6;
+  CHARGER_ORDER_CONFLICT = 7;
+  CHARGER_DEPOSIT_REQUIRED = 8;
+  CHARGER_ORDER_NOT_FOUND = 9;
+}

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package order.v1;
+
+option go_package = "github.com/go-kratos/kratos-layout/api/order/v1;v1";
+
+enum ErrorReason {
+  ERROR_REASON_UNSPECIFIED = 0;
+  INVALID_ARGUMENT = 1;
+  UNAUTHORIZED = 2;
+  ORDER_NOT_FOUND = 3;
+  ORDER_ALREADY_ACTIVE = 4;
+  ORDER_DUPLICATE_REQUEST = 5;
+  ORDER_RETURN_CONFLICT = 6;
+}

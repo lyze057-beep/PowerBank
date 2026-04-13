@@ -95,8 +95,8 @@ func TestHandleWxNotifyRollbackOnUpdateFailure(t *testing.T) {
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT INTO payment_events").
 		WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectQuery("SELECT uid, biz_type, amount").
-		WillReturnRows(sqlmock.NewRows([]string{"uid", "biz_type", "amount"}).AddRow("u1001", 1, 100))
+	mock.ExpectQuery("SELECT uid, biz_type, biz_order_no, amount").
+		WillReturnRows(sqlmock.NewRows([]string{"uid", "biz_type", "biz_order_no", "amount"}).AddRow("u1001", 1, "biz_1", 100))
 	mock.ExpectExec("UPDATE payment_orders").
 		WillReturnError(errors.New("update failed"))
 	mock.ExpectRollback()

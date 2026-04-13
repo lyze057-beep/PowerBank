@@ -36,6 +36,18 @@ func needJWT(ctx context.Context, operation string) bool {
 	if strings.HasPrefix(operation, "/wallet.v1.WalletService/") {
 		return true
 	}
+	if strings.HasPrefix(operation, "/deposit.v1.DepositService/") {
+		return true
+	}
+	if strings.HasPrefix(operation, "/charger.v1.ChargerService/") {
+		if operation == "/charger.v1.ChargerService/NotifyBorrowResult" || operation == "/charger.v1.ChargerService/NotifyReturnResult" {
+			return false
+		}
+		return true
+	}
+	if strings.HasPrefix(operation, "/order.v1.OrderService/") {
+		return true
+	}
 	if strings.HasPrefix(operation, "/notify.v1.NotifyService/") {
 		return true
 	}

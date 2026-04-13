@@ -23,7 +23,7 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, jwt *conf.JWT, payment *conf.Payment, ai *conf.AI, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(confServer *conf.Server, confData *conf.Data, jwt *conf.JWT, payment *conf.Payment, ai *conf.AI, credit *conf.Credit, logger log.Logger) (*kratos.App, func(), error) {
 	dataData, cleanup, err := data.NewData(confData)
 	if err != nil {
 		return nil, nil, err
@@ -48,13 +48,23 @@ func wireApp(confServer *conf.Server, confData *conf.Data, jwt *conf.JWT, paymen
 	walletUsecase := biz.NewWalletUsecase(paymentRepo, walletRepo, wxPayGateway, alipayGateway, logger)
 	walletService := service.NewWalletService(walletUsecase)
 	notifyService := service.NewNotifyService(notifyUsecase)
+	depositRepo := data.NewDepositRepo(dataData, logger)
+	creditGateway := data.NewCreditGateway(credit, logger)
+	depositUsecase := biz.NewDepositUsecase(depositRepo, paymentRepo, wxPayGateway, alipayGateway, creditGateway, logger)
+	depositService := service.NewDepositService(depositUsecase)
+	chargerRepo := data.NewChargerRepo(dataData, logger)
+	chargerUsecase := biz.NewChargerUsecase(chargerRepo, depositUsecase, notifyUsecase, logger)
+	chargerService := service.NewChargerService(chargerUsecase)
+	orderRepo := data.NewOrderRepo(dataData, logger)
+	orderUsecase := biz.NewOrderUsecase(orderRepo, logger)
+	orderService := service.NewOrderService(orderUsecase)
 	supportRepo := data.NewSupportRepo(dataData, logger)
 	modelChatGateway := data.NewOpenAIChatClient(ai, logger)
-	supportUsecase := biz.NewSupportUsecase(supportRepo, modelChatGateway, userUsecase, walletUsecase, logger)
+	supportUsecase := biz.NewSupportUsecase(supportRepo, modelChatGateway, userUsecase, walletUsecase, depositUsecase, orderUsecase, logger)
 	supportService := service.NewSupportService(supportUsecase)
-	grpcServer := server.NewGRPCServer(confServer, jwt, greeterService, userService, paymentService, walletService, notifyService, supportService, logger)
+	grpcServer := server.NewGRPCServer(confServer, jwt, greeterService, userService, paymentService, walletService, notifyService, depositService, chargerService, orderService, supportService, logger)
 	authService := service.NewAuthService(authUsecase)
-	httpServer := server.NewHTTPServer(confServer, jwt, greeterService, authService, userService, paymentService, walletService, notifyService, supportService, logger)
+	httpServer := server.NewHTTPServer(confServer, jwt, greeterService, authService, userService, paymentService, walletService, notifyService, depositService, chargerService, orderService, supportService, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup()
